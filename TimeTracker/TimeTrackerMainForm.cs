@@ -11,6 +11,7 @@ using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.Serialization;
 
 namespace TimeTracker
 {
@@ -27,11 +28,91 @@ namespace TimeTracker
             string DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default["DataFile"].ToString();
             FileInfo dataFileInfo = new FileInfo(DataFile);
             VerifyCreated(dataFileInfo.DirectoryName);
+            Debug.Assert(Directory.Exists(dataFileInfo.DirectoryName));
             VerifyExistsDataBase(DataFile);
             Debug.Print(DataFile);
-            TimersBS.DataSource = AppDataSource;
+            SetupDataSource(DataFile);
+            SetupDataGridView();
+            ConnectDataGridViewEvents();
+        }
+
+        private void ConnectDataGridViewEvents()
+        {
+            TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
+            TimerDataGridView.RowsAdded += TimerDataGridView_RowsAdded;
+            TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
+            TimerDataGridView.CellBeginEdit += TimerDataGridView_CellBeginEdit;
+            TimerDataGridView.RowsRemoved += TimerDataGridView_RowsRemoved;
+        }
+
+        private void TimerDataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        {
+            Debug.Print(string.Format("Row {0} removed!", e.RowIndex));
+        }
+
+        private void TimerDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            if(e.ColumnIndex == 2 && TimerDataGridView.Rows[e.RowIndex].Cells[1].EditedFormattedValue.ToString() == string.Empty)
+            {
+                e.Cancel = true;
+                return;
+            }
+        }
+
+        private void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            Debug.Print(string.Format("Cell end Edit occurred at ({0}, {1})", e.RowIndex, e.ColumnIndex));
+        }
+
+        private void TimerDataGridView_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            Debug.Print(string.Format("Rows added to DataGridView at index {0}", e.RowIndex));
+        }
+
+        private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            Debug.Print(string.Format("User added Row at View index {0}", e.Row.Index));            
+        }
+
+        private void SetupDataGridView()
+        {
             TimerDataGridView.DataSource = TimersBS;
             TimerDataGridView.Columns.FormatColumns();
+        }
+
+        private void SetupDataSource(string DataFile)
+        {
+            try
+            {
+                TimersBS.DataSource = AppDataSource;
+            }
+            catch (TimerDataBaseInvalidException ex)
+            {
+                string newFolder = Application.CommonAppDataPath + @"\Invalid_Db\";
+
+                Directory.CreateDirectory(newFolder);
+                FileInfo dbInfo = new FileInfo(DataFile);
+                string newFileName = dbInfo.Name;
+                try
+                {
+                    File.Move(DataFile, newFolder + newFileName);
+                }
+                catch (System.IO.IOException)
+                {
+                    string[] files = Directory.GetFiles(newFolder, newFileName);
+                    newFileName = string.Format("{0};{1}", dbInfo.Name, files.Length);
+                }
+                finally
+                {
+                    File.Move(DataFile, newFolder + newFileName);
+                }
+                Debug.Print("Invalid database file now residing @ " + newFolder + newFileName);
+                VerifyExistsDataBase(DataFile);
+            }
+            finally
+            {
+                TimersBS.DataSource = AppDataSource;
+            }
         }
 
         private void VerifyExistsDataBase(string dataFile)
@@ -86,8 +167,7 @@ namespace TimeTracker
             } while (dirsNames.Count > 0);
             if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
         }
-
-
+               
     }
 
     public class TimerHelper
@@ -102,8 +182,18 @@ namespace TimeTracker
                 // Create command builder to generate SQL update, insert and delete commands
                 using (SQLiteCommandBuilder command = new SQLiteCommandBuilder(adapter))
                 {
-                    // Populate datatable to return, using the database adapter                
-                    adapter.Fill(dt);
+                    // Populate datatable to return, using the database adapter
+                    try
+                    {
+                        adapter.Fill(dt);
+                    }
+                    catch (System.Data.SQLite.SQLiteException)
+                    {
+
+                        connection.Close();
+                        File.Delete(connection.DataSource);
+                        throw new TimerDataBaseInvalidException(connection.DataSource,"Invalid database found, creating new database!");                        
+                    }
                 }
                 return dt;
             }
@@ -121,6 +211,34 @@ namespace TimeTracker
                 }
             }
             return result;
+        }
+    }
+
+    [Serializable]
+    internal class TimerDataBaseInvalidException : Exception
+    {
+        string _invalid_data_file = string.Empty;
+        public string InValidDataFile
+        {
+            get => _invalid_data_file;
+        }
+
+        public TimerDataBaseInvalidException()
+        {
+        }
+
+        public TimerDataBaseInvalidException(string file_path, string message = "Invalid database found, creating new database!") : base(message)
+        {
+            _invalid_data_file = file_path;
+        }
+
+        public TimerDataBaseInvalidException(string file_path, string message = "Invalid database found, creating new database!", Exception innerException = null) : base(message, innerException)
+        {
+            _invalid_data_file = file_path;
+        }
+
+        protected TimerDataBaseInvalidException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
         }
     }
 
