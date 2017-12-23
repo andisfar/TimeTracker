@@ -134,10 +134,14 @@
     <EmbeddedResource Include="dbo.CreateTimer.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data\connection_string.txt" />
+    <EmbeddedResource Include="Data\connection_string.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data\select_all_rows.txt" />
+    <EmbeddedResource Include="Data\select_all_rows.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\dbo.CreateTimer.sql" />
+    <EmbeddedResource Include="Data\insert_row.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.106.0\build\net46\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.106.0\build\net46\System.Data.SQLite.Core.targets')" />

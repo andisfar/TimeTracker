@@ -91,6 +91,15 @@ namespace TimeTracker.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to isnert into {0} values({1}, {2});.
+        /// </summary>
+        internal static string insert_row {
+            get {
+                return ResourceManager.GetString("insert_row", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SELECT id, Name, Elapsed FROM [Timer];.
         /// </summary>
         internal static string select_all_rows {
