@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="TimeTrackerDataSet" targetNamespace="http://tempuri.org/TimeTrackerDataSet.xsd" xmlns:mstns="http://tempuri.org/TimeTrackerDataSet.xsd" xmlns="http://tempuri.org/TimeTrackerDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="TimeTrackerDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="TimeTrackerDataSet" msprop:Generator_UserDSName="TimeTrackerDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Timers" msprop:Generator_TableClassName="TimersDataTable" msprop:Generator_TableVarName="tableTimers" msprop:Generator_RowChangedName="TimersRowChanged" msprop:Generator_TablePropName="Timers" msprop:Generator_RowDeletingName="TimersRowDeleting" msprop:Generator_RowChangingName="TimersRowChanging" msprop:Generator_RowEvHandlerName="TimersRowChangeEventHandler" msprop:Generator_RowDeletedName="TimersRowDeleted" msprop:Generator_RowClassName="TimersRow" msprop:Generator_UserTableName="Timers" msprop:Generator_RowEvArgName="TimersRowChangeEvent">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Key" msdata:AutoIncrement="true" msprop:Generator_ColumnVarNameInTable="columnKey" msprop:Generator_ColumnPropNameInRow="Key" msprop:Generator_ColumnPropNameInTable="KeyColumn" msprop:Generator_UserColumnName="Key" type="xs:int" />
+              <xs:element name="Name" msprop:Generator_ColumnVarNameInTable="columnName" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnPropNameInTable="NameColumn" msprop:Generator_UserColumnName="Name" type="xs:string" minOccurs="0" />
+              <xs:element name="ElapsedTime" msprop:nullValue="_throw" msprop:Generator_ColumnPropNameInRow="ElapsedTime" msprop:Generator_ColumnVarNameInTable="columnElapsedTime" msprop:Generator_ColumnPropNameInTable="ElapsedTimeColumn" msprop:Generator_UserColumnName="ElapsedTime" type="xs:duration" minOccurs="0" />
+              <xs:element name="RunningElapsedTime" msprop:Generator_ColumnVarNameInTable="columnRunningElapsedTime" msprop:Generator_ColumnPropNameInRow="RunningElapsedTime" msprop:Generator_ColumnPropNameInTable="RunningElapsedTimeColumn" msprop:Generator_UserColumnName="RunningElapsedTime" type="xs:duration" minOccurs="0" />
+              <xs:element name="IsRunning" msprop:nullValue="false" msprop:Generator_ColumnPropNameInRow="IsRunning" msprop:Generator_ColumnVarNameInTable="columnIsRunning" msprop:Generator_ColumnPropNameInTable="IsRunningColumn" msprop:Generator_UserColumnName="IsRunning" type="xs:boolean" minOccurs="0" />
+              <xs:element name="CanonicalName" msprop:nullValue="_empty" msprop:Generator_ColumnPropNameInRow="CanonicalName" msprop:Generator_ColumnVarNameInTable="columnCanonicalName" msprop:Generator_ColumnPropNameInTable="CanonicalNameColumn" msprop:Generator_UserColumnName="CanonicalName" type="xs:string" minOccurs="0" />
+              <xs:element name="MenuText" msprop:nullValue="_empty" msprop:Generator_ColumnPropNameInRow="MenuText" msprop:Generator_ColumnVarNameInTable="columnMenuText" msprop:Generator_ColumnPropNameInTable="MenuTextColumn" msprop:Generator_UserColumnName="MenuText" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="Constraint1" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//mstns:Timers" />
+      <xs:field xpath="mstns:Key" />
+    </xs:unique>
+    <xs:unique name="Constraint2">
+      <xs:selector xpath=".//mstns:Timers" />
+      <xs:field xpath="mstns:Name" />
+    </xs:unique>
+  </xs:element>
+</xs:schema>

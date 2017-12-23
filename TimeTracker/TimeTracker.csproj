@@ -45,11 +45,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="TimeTrackerDataSet.cs">
+      <DependentUpon>TimeTrackerDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="TimeTrackerDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TimeTrackerDataSet.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="TimeTrackerMainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="TimeTrackerMainForm.Designer.cs">
+      <DependentUpon>TimeTrackerMainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,6 +70,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="TimeTrackerMainForm.resx">
+      <DependentUpon>TimeTrackerMainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -71,6 +82,17 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="TimeTrackerDataSet.xsc">
+      <DependentUpon>TimeTrackerDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="TimeTrackerDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>TimeTrackerDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="TimeTrackerDataSet.xss">
+      <DependentUpon>TimeTrackerDataSet.xsd</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

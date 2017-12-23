@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TimeTracker")]
+[assembly: AssemblyTitle("d_TimeTrackerDataSet")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TimeTracker_1_0")]
+[assembly: AssemblyProduct("d_TimeTrackerDataSet")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a85da2f3-df3d-404f-82fb-4e48c777b61e")]
+[assembly: Guid("800f9823-6104-49aa-9daa-460260e9efa8")]
 
 // Version information for an assembly consists of the following four values:
 //
