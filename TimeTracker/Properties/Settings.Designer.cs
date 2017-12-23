@@ -25,7 +25,7 @@ namespace TimeTracker.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data\\SavedTimers.db")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\Data\\SavedTimers.db")]
         public string DataFile {
             get {
                 return ((string)(this["DataFile"]));

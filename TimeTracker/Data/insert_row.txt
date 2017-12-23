@@ -1,0 +1,1 @@
+isnert into {0} values({1}, {2});

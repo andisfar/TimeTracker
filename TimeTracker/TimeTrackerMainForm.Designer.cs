@@ -30,9 +30,9 @@
         {           
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimeTrackerMainForm));
-            this.timeTrackerDataSet = new TimeTracker.TimeTrackerDataSet();
-            this.timersBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.timersBindingNavigator = new System.Windows.Forms.BindingNavigator(this.components);
+            this.TimerDataGridView = new System.Windows.Forms.DataGridView();
+            this.TimersBS = new System.Windows.Forms.BindingSource(this.components);
+            this.TimerBN = new System.Windows.Forms.BindingNavigator(this.components);
             this.bindingNavigatorMoveFirstItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMovePreviousItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -44,39 +44,28 @@
             this.bindingNavigatorSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.bindingNavigatorAddNewItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorDeleteItem = new System.Windows.Forms.ToolStripButton();
-            this.timersBindingNavigatorSaveItem = new System.Windows.Forms.ToolStripButton();
-            this.timersDataGridView = new System.Windows.Forms.DataGridView();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.timeTrackerDataSet)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.timersBindingSource)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.timersBindingNavigator)).BeginInit();
-            this.timersBindingNavigator.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.timersDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).BeginInit();
+            this.TimerBN.SuspendLayout();
             this.SuspendLayout();
             // 
-            // timeTrackerDataSet
+            // TimerDataGridView
             // 
-            this.timeTrackerDataSet.DataSetName = "TimeTrackerDataSet";
-            this.timeTrackerDataSet.SchemaSerializationMode = System.Data.SchemaSerializationMode.IncludeSchema;
+            this.TimerDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.TimerDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TimerDataGridView.Location = new System.Drawing.Point(0, 25);
+            this.TimerDataGridView.Name = "TimerDataGridView";
+            this.TimerDataGridView.Size = new System.Drawing.Size(544, 260);
+            this.TimerDataGridView.TabIndex = 0;
             // 
-            // timersBindingSource
+            // TimerBN
             // 
-            this.timersBindingSource.DataMember = "Timers";
-            this.timersBindingSource.DataSource = this.timeTrackerDataSet;
-            // 
-            // timersBindingNavigator
-            // 
-            this.timersBindingNavigator.AddNewItem = this.bindingNavigatorAddNewItem;
-            this.timersBindingNavigator.BindingSource = this.timersBindingSource;
-            this.timersBindingNavigator.CountItem = this.bindingNavigatorCountItem;
-            this.timersBindingNavigator.DeleteItem = this.bindingNavigatorDeleteItem;
-            this.timersBindingNavigator.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.TimerBN.AddNewItem = this.bindingNavigatorAddNewItem;
+            this.TimerBN.BindingSource = this.TimersBS;
+            this.TimerBN.CountItem = this.bindingNavigatorCountItem;
+            this.TimerBN.DeleteItem = this.bindingNavigatorDeleteItem;
+            this.TimerBN.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bindingNavigatorMoveFirstItem,
             this.bindingNavigatorMovePreviousItem,
             this.bindingNavigatorSeparator,
@@ -87,18 +76,17 @@
             this.bindingNavigatorMoveLastItem,
             this.bindingNavigatorSeparator2,
             this.bindingNavigatorAddNewItem,
-            this.bindingNavigatorDeleteItem,
-            this.timersBindingNavigatorSaveItem});
-            this.timersBindingNavigator.Location = new System.Drawing.Point(0, 0);
-            this.timersBindingNavigator.MoveFirstItem = this.bindingNavigatorMoveFirstItem;
-            this.timersBindingNavigator.MoveLastItem = this.bindingNavigatorMoveLastItem;
-            this.timersBindingNavigator.MoveNextItem = this.bindingNavigatorMoveNextItem;
-            this.timersBindingNavigator.MovePreviousItem = this.bindingNavigatorMovePreviousItem;
-            this.timersBindingNavigator.Name = "timersBindingNavigator";
-            this.timersBindingNavigator.PositionItem = this.bindingNavigatorPositionItem;
-            this.timersBindingNavigator.Size = new System.Drawing.Size(563, 25);
-            this.timersBindingNavigator.TabIndex = 0;
-            this.timersBindingNavigator.Text = "bindingNavigator1";
+            this.bindingNavigatorDeleteItem});
+            this.TimerBN.Location = new System.Drawing.Point(0, 0);
+            this.TimerBN.MoveFirstItem = this.bindingNavigatorMoveFirstItem;
+            this.TimerBN.MoveLastItem = this.bindingNavigatorMoveLastItem;
+            this.TimerBN.MoveNextItem = this.bindingNavigatorMoveNextItem;
+            this.TimerBN.MovePreviousItem = this.bindingNavigatorMovePreviousItem;
+            this.TimerBN.Name = "TimerBN";
+            this.TimerBN.PositionItem = this.bindingNavigatorPositionItem;
+            this.TimerBN.Size = new System.Drawing.Size(544, 25);
+            this.TimerBN.TabIndex = 1;
+            this.TimerBN.Text = "bindingNavigator1";
             // 
             // bindingNavigatorMoveFirstItem
             // 
@@ -185,91 +173,20 @@
             this.bindingNavigatorDeleteItem.Size = new System.Drawing.Size(23, 22);
             this.bindingNavigatorDeleteItem.Text = "Delete";
             // 
-            // timersBindingNavigatorSaveItem
-            // 
-            this.timersBindingNavigatorSaveItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.timersBindingNavigatorSaveItem.Enabled = false;
-            this.timersBindingNavigatorSaveItem.Image = ((System.Drawing.Image)(resources.GetObject("timersBindingNavigatorSaveItem.Image")));
-            this.timersBindingNavigatorSaveItem.Name = "timersBindingNavigatorSaveItem";
-            this.timersBindingNavigatorSaveItem.Size = new System.Drawing.Size(23, 22);
-            this.timersBindingNavigatorSaveItem.Text = "Save Data";
-            // 
-            // timersDataGridView
-            // 
-            this.timersDataGridView.AutoGenerateColumns = false;
-            this.timersDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.timersDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn1,
-            this.dataGridViewTextBoxColumn2,
-            this.dataGridViewTextBoxColumn3,
-            this.dataGridViewTextBoxColumn4,
-            this.dataGridViewCheckBoxColumn1,
-            this.dataGridViewTextBoxColumn5,
-            this.dataGridViewTextBoxColumn6});
-            this.timersDataGridView.DataSource = this.timersBindingSource;
-            this.timersDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.timersDataGridView.Location = new System.Drawing.Point(0, 25);
-            this.timersDataGridView.Name = "timersDataGridView";
-            this.timersDataGridView.Size = new System.Drawing.Size(563, 302);
-            this.timersDataGridView.TabIndex = 1;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.DataPropertyName = "Key";
-            this.dataGridViewTextBoxColumn1.HeaderText = "Key";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            // 
-            // dataGridViewTextBoxColumn2
-            // 
-            this.dataGridViewTextBoxColumn2.DataPropertyName = "Name";
-            this.dataGridViewTextBoxColumn2.HeaderText = "Name";
-            this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
-            // 
-            // dataGridViewTextBoxColumn3
-            // 
-            this.dataGridViewTextBoxColumn3.DataPropertyName = "ElapsedTime";
-            this.dataGridViewTextBoxColumn3.HeaderText = "ElapsedTime";
-            this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            this.dataGridViewTextBoxColumn4.DataPropertyName = "RunningElapsedTime";
-            this.dataGridViewTextBoxColumn4.HeaderText = "RunningElapsedTime";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            // 
-            // dataGridViewCheckBoxColumn1
-            // 
-            this.dataGridViewCheckBoxColumn1.DataPropertyName = "IsRunning";
-            this.dataGridViewCheckBoxColumn1.HeaderText = "IsRunning";
-            this.dataGridViewCheckBoxColumn1.Name = "dataGridViewCheckBoxColumn1";
-            // 
-            // dataGridViewTextBoxColumn5
-            // 
-            this.dataGridViewTextBoxColumn5.DataPropertyName = "CanonicalName";
-            this.dataGridViewTextBoxColumn5.HeaderText = "CanonicalName";
-            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
-            // 
-            // dataGridViewTextBoxColumn6
-            // 
-            this.dataGridViewTextBoxColumn6.DataPropertyName = "MenuText";
-            this.dataGridViewTextBoxColumn6.HeaderText = "MenuText";
-            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            // 
             // TimeTrackerMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(563, 327);
-            this.Controls.Add(this.timersDataGridView);
-            this.Controls.Add(this.timersBindingNavigator);
+            this.ClientSize = new System.Drawing.Size(544, 285);
+            this.Controls.Add(this.TimerDataGridView);
+            this.Controls.Add(this.TimerBN);
             this.Name = "TimeTrackerMainForm";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.timeTrackerDataSet)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.timersBindingSource)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.timersBindingNavigator)).EndInit();
-            this.timersBindingNavigator.ResumeLayout(false);
-            this.timersBindingNavigator.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.timersDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).EndInit();
+            this.TimerBN.ResumeLayout(false);
+            this.TimerBN.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -277,9 +194,9 @@
 
         #endregion
 
-        private TimeTrackerDataSet timeTrackerDataSet;
-        private System.Windows.Forms.BindingSource timersBindingSource;
-        private System.Windows.Forms.BindingNavigator timersBindingNavigator;
+        private System.Windows.Forms.DataGridView TimerDataGridView;
+        private System.Windows.Forms.BindingSource TimersBS;
+        private System.Windows.Forms.BindingNavigator TimerBN;
         private System.Windows.Forms.ToolStripButton bindingNavigatorAddNewItem;
         private System.Windows.Forms.ToolStripLabel bindingNavigatorCountItem;
         private System.Windows.Forms.ToolStripButton bindingNavigatorDeleteItem;
@@ -291,15 +208,6 @@
         private System.Windows.Forms.ToolStripButton bindingNavigatorMoveNextItem;
         private System.Windows.Forms.ToolStripButton bindingNavigatorMoveLastItem;
         private System.Windows.Forms.ToolStripSeparator bindingNavigatorSeparator2;
-        private System.Windows.Forms.ToolStripButton timersBindingNavigatorSaveItem;
-        private System.Windows.Forms.DataGridView timersDataGridView;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn2;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn3;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
     }
 }
 
