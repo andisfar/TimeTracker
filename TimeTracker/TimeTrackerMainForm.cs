@@ -36,6 +36,44 @@ namespace TimeTracker
             ConnectDataGridViewEvents();
         }
 
+
+        private void SaveData(object sender, SaveDataEventArgs e)
+        {
+            switch (e.Target)
+            {
+                case SaveDataTarget.SQLiteTimerDatabase:
+                    SaveToSQLiteTimerDatabase();
+                    break;
+                default:
+                    {
+                        break;
+                    }
+
+            }
+        }
+
+        private void SaveToSQLiteTimerDatabase(DataGridView dgv, string connection_string, string database_file)
+        { 
+
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                using (SQLiteConnection connection = new SQLiteConnection(connection_string))
+                {
+                    using (SQLiteCommand insert_command = new SQLiteCommand("INSERT INTO [Timers] VALUES(@Name, @Elapsed)", connection))
+                    {
+                        insert_command.Parameters.AddWithValue("@Name", row.Cells["Id"].Value);
+                        cmd.Parameters.AddWithValue("@Name", row.Cells["Name"].Value);
+                        cmd.Parameters.AddWithValue("@Country", row.Cells["Country"].Value);
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+            }
+            MessageBox.Show("Records inserted.");
+        }
+
+
         private void ConnectDataGridViewEvents()
         {
             TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
@@ -168,6 +206,27 @@ namespace TimeTracker
             if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
         }
                
+    }
+
+    public enum SaveDataTarget
+    {
+        SQLiteTimerDatabase
+    }
+
+    [Serializable]
+    public class SaveDataEventArgs : EventArgs
+    {
+        private SaveDataTarget _target;
+        public SaveDataTarget Target { get => _target; }
+
+        public SaveDataEventArgs()
+        {
+        }
+
+        public SaveDataEventArgs(SaveDataTarget target)
+        {
+            _target = target;
+        }
     }
 
     public class TimerHelper

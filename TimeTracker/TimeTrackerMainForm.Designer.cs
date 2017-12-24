@@ -44,6 +44,7 @@
             this.bindingNavigatorMoveNextItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMoveLastItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.bindingNavigatorSaveToDatabase = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).BeginInit();
@@ -76,7 +77,8 @@
             this.bindingNavigatorMoveLastItem,
             this.bindingNavigatorSeparator2,
             this.bindingNavigatorAddNewItem,
-            this.bindingNavigatorDeleteItem});
+            this.bindingNavigatorDeleteItem,
+            this.bindingNavigatorSaveToDatabase});
             this.TimerBN.Location = new System.Drawing.Point(0, 0);
             this.TimerBN.MoveFirstItem = this.bindingNavigatorMoveFirstItem;
             this.TimerBN.MoveLastItem = this.bindingNavigatorMoveLastItem;
@@ -173,6 +175,16 @@
             this.bindingNavigatorSeparator2.Name = "bindingNavigatorSeparator2";
             this.bindingNavigatorSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
+            // bindingNavigatorSaveToDatabase
+            // 
+            this.bindingNavigatorSaveToDatabase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.bindingNavigatorSaveToDatabase.Image = global::TimeTracker.Properties.Resources.Save;
+            this.bindingNavigatorSaveToDatabase.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.bindingNavigatorSaveToDatabase.Name = "bindingNavigatorSaveToDatabase";
+            this.bindingNavigatorSaveToDatabase.Size = new System.Drawing.Size(23, 22);
+            this.bindingNavigatorSaveToDatabase.Text = "Save To Database";
+            this.bindingNavigatorSaveToDatabase.ToolTipText = "Save To Database";
+            // 
             // TimeTrackerMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -208,6 +220,7 @@
         private System.Windows.Forms.ToolStripButton bindingNavigatorMoveNextItem;
         private System.Windows.Forms.ToolStripButton bindingNavigatorMoveLastItem;
         private System.Windows.Forms.ToolStripSeparator bindingNavigatorSeparator2;
+        private System.Windows.Forms.ToolStripButton bindingNavigatorSaveToDatabase;
     }
 }
 
