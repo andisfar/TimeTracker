@@ -114,8 +114,10 @@ namespace TimeTracker
         }
         private void SetupDataGridView()
         {
+            ((DataTable)TimersBS.DataSource).AcceptChanges();
             TimerDataGridView.DataSource = TimersBS;
             TimerDataGridView.Columns.FormatColumns();
+            TimerDataGridView.Update();
         }
         private void SetupDataSource(string DataFile)
         {

@@ -53,6 +53,7 @@
             // 
             // TimerDataGridView
             // 
+            this.TimerDataGridView.AllowUserToAddRows = false;
             this.TimerDataGridView.AllowUserToDeleteRows = false;
             this.TimerDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TimerDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
