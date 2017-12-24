@@ -17,14 +17,14 @@ namespace TimeTracker
 {
     public partial class TimeTrackerMainForm : Form
     {
-        SQLiteDataAdapter timerDataAdapter = null;
-        SQLiteCommandBuilder timerCommandBuilder = null;
-        SQLiteConnection timerConnection = null;
-        SQLiteCommand update_command = null;
-        SQLiteCommand insert_command = null;
-        SQLiteCommand delete_command = null;
-        SQLiteCommand create_command = null;
-        SQLiteCommand select_command = null;
+        SQLiteDataAdapter timerDataAdapter;
+        SQLiteCommandBuilder timerCommandBuilder;
+        SQLiteConnection timerConnection;
+        SQLiteCommand update_command;
+        SQLiteCommand insert_command;
+        SQLiteCommand delete_command;
+        SQLiteCommand create_command;
+        SQLiteCommand select_command;
         public DataTable AppDataSource
         {
             get => GetTimerTable();
@@ -32,26 +32,27 @@ namespace TimeTracker
         public TimeTrackerMainForm()
         {
             InitializeComponent();
-            string DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default["DataFile"].ToString();
-            FileInfo dataFileInfo = new FileInfo(DataFile);
+            var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default[@"DataFile"].ToString();
+            var dataFileInfo = new FileInfo(DataFile);
             VerifyCreated(dataFileInfo.DirectoryName);
             Debug.Assert(Directory.Exists(dataFileInfo.DirectoryName));
             VerifyExistsDataBase(DataFile);
             Debug.Print(DataFile);
-            timerConnection = new SQLiteConnection(ConnectionString);
+            TimerConnection = new SQLiteConnection(ConnectionString);
 
-            update_command = new SQLiteCommand(Properties.Resources.update_command, timerConnection);
-            insert_command = new SQLiteCommand(Properties.Resources.insert_command, timerConnection);
-            delete_command = new SQLiteCommand(Properties.Resources.delete_command, timerConnection);
-            create_command = new SQLiteCommand(Properties.Resources.dbo_CreateTimer, timerConnection);
-            select_command = new SQLiteCommand(Properties.Resources.select_all_rows, timerConnection);
+            Update_command = new SQLiteCommand(Properties.Resources.update_command, TimerConnection);
+            Insert_command = new SQLiteCommand(Properties.Resources.insert_command, TimerConnection);
+            Delete_command = new SQLiteCommand(Properties.Resources.delete_command, TimerConnection);
+            Create_command = new SQLiteCommand(Properties.Resources.dbo_CreateTimer, TimerConnection);
+            Select_command = new SQLiteCommand(Properties.Resources.select_all_rows, TimerConnection);
 
-            timerDataAdapter = new SQLiteDataAdapter();
-
-            timerDataAdapter.UpdateCommand = update_command;
-            timerDataAdapter.DeleteCommand = delete_command;
-            timerDataAdapter.InsertCommand = insert_command;
-            timerCommandBuilder = new SQLiteCommandBuilder(timerDataAdapter);            
+            timerDataAdapter = new SQLiteDataAdapter
+            {
+                UpdateCommand = Update_command,
+                DeleteCommand = Delete_command,
+                InsertCommand = Insert_command
+            };
+            TimerCommandBuilder = new SQLiteCommandBuilder(timerDataAdapter);
 
             SetupDataSource(DataFile);
             SetupDataGridView();
@@ -66,51 +67,50 @@ namespace TimeTracker
             TimerDataGridView.RowsRemoved += TimerDataGridView_RowsRemoved;
             TimerDataGridView.UserDeletingRow += DeleteSingleRow;
         }
-
         private void DeleteSingleRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             DeleteRow(e);
         }
-
         private void DeleteRow(DataGridViewRowCancelEventArgs e)
         {
-            Debug.Print(string.Format("Row with index {0} is about to be deleted!", e.Row.Cells[0].EditedFormattedValue.ToString()));
-            int rowID = Int32.Parse(e.Row.Cells[0].EditedFormattedValue.ToString());
+            Debug.Print($"Row with index {e.Row.Cells[0].EditedFormattedValue.ToString()} is about to be deleted!");
+            var rowID = Int32.Parse(e.Row.Cells[0].EditedFormattedValue.ToString());
             timerDataAdapter.DeleteCommand.Connection.Open();
 
-            SQLiteParameter idParameter = new SQLiteParameter("@Id", rowID);
-            List<SQLiteParameter> paramList = new List<SQLiteParameter>();
-            paramList.Add(idParameter);
+            var idParameter = new SQLiteParameter("@Id", rowID);
+            var paramList = new List<SQLiteParameter>
+            {
+                idParameter
+            };
             timerDataAdapter.DeleteCommand.Parameters.AddRange(paramList.ToArray());
-            int rowsAffected = timerDataAdapter.DeleteCommand.ExecuteNonQuery();
+            var rowsAffected = timerDataAdapter.DeleteCommand.ExecuteNonQuery();
             timerDataAdapter.DeleteCommand.Connection.Close();
             AppDataSource.AcceptChanges();
-            Debug.Print(string.Format("Rows affected {0}", rowsAffected));
+            Debug.Print($"Rows affected {rowsAffected}");
         }
-
-        private void TimerDataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
+        private static void TimerDataGridView_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e)
         {
-            Debug.Print(string.Format("Row {0} removed!", e.RowIndex));
+            Debug.Print($"Row {e.RowIndex} removed!");
         }
         private void TimerDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
         {
-            if(e.ColumnIndex == 2 && TimerDataGridView.Rows[e.RowIndex].Cells[1].EditedFormattedValue.ToString() == string.Empty)
+            if (e.ColumnIndex == 2 && TimerDataGridView.Rows[e.RowIndex].Cells[1].EditedFormattedValue.ToString() == string.Empty)
             {
                 e.Cancel = true;
                 return;
             }
         }
-        private void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private static void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            Debug.Print(string.Format("Cell end Edit occurred at ({0}, {1})", e.RowIndex, e.ColumnIndex)); 
+            Debug.Print($"Cell end Edit occurred at ({e.RowIndex}, {e.ColumnIndex})");
         }
-        private void TimerDataGridView_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        private static void TimerDataGridView_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
         {
-            Debug.Print(string.Format("Rows added to DataGridView at index {0}", e.RowIndex));
+            Debug.Print($"Rows added to DataGridView at index {e.RowIndex}");
         }
-        private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        private static void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
         {
-            Debug.Print(string.Format("User added Row at View index {0}", e.Row.Index));            
+            Debug.Print($"User added Row at View index {e.Row.Index}");
         }
         private void SetupDataGridView()
         {
@@ -123,21 +123,21 @@ namespace TimeTracker
             {
                 TimersBS.DataSource = AppDataSource;
             }
-            catch (TimerDataBaseInvalidException ex)
+            catch (TimerDataBaseInvalidException)
             {
-                string newFolder = Application.CommonAppDataPath + @"\Invalid_Db\";
+                var newFolder = Application.CommonAppDataPath + @"\Invalid_Db\";
 
                 Directory.CreateDirectory(newFolder);
-                FileInfo dbInfo = new FileInfo(DataFile);
-                string newFileName = dbInfo.Name;
+                var dbInfo = new FileInfo(DataFile);
+                var newFileName = dbInfo.Name;
                 try
                 {
                     File.Move(DataFile, newFolder + newFileName);
                 }
                 catch (System.IO.IOException)
                 {
-                    string[] files = Directory.GetFiles(newFolder, newFileName);
-                    newFileName = string.Format("{0};{1}", dbInfo.Name, files.Length);
+                    var files = Directory.GetFiles(newFolder, newFileName);
+                    newFileName = $"{dbInfo.Name};{files.Length}";
                 }
                 finally
                 {
@@ -151,50 +151,65 @@ namespace TimeTracker
                 TimersBS.DataSource = AppDataSource;
             }
         }
-        private void VerifyExistsDataBase(string dataFile)
+        private static void VerifyExistsDataBase(string dataFile)
         {
             SQLiteConnection connection = null;
-            string connection_string = string.Format(Properties.Resources.connection_string, dataFile);
+            var connection_string = string.Format(Properties.Resources.connection_string, dataFile);
             connection = new SQLiteConnection(connection_string, true);
             if (!File.Exists(dataFile))
             {
-                string sql_create_text = Properties.Resources.dbo_CreateTimer;
+                var sql_create_text = Properties.Resources.dbo_CreateTimer;
                 // open the database connection
                 connection.Open();
-                SQLiteCommand create_db_command = new SQLiteCommand(sql_create_text, connection);
-                create_db_command.ExecuteNonQuery();
-                // close the database connection
-                connection.Close();
+                using (var create_db_command = new SQLiteCommand(sql_create_text, connection))
+                {
+                    create_db_command.ExecuteNonQuery();
+                    // close the database connection
+                    connection.Close();
+                }
             }
             // if all is well the database exists and is populated with default info or alredy existed
         }
         public DataTable GetTimerTable()
         {
             // Connect to database.
-            string connection_string = ConnectionString;
-            string sqlCommand = Properties.Resources.select_all_rows;
-            return TimerHelper.SelectAllCommand(select_command);
+            var connection_string = ConnectionString;
+            var sqlCommand = Properties.Resources.select_all_rows;
+            return TimerHelper.SelectAllCommand(Select_command);
         }
         private static string ConnectionString
         {
             get
             {
-                string DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default["DataFile"].ToString();
-                string connection_string = string.Format(Properties.Resources.connection_string, DataFile);
+                var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default["DataFile"].ToString();
+                var connection_string = string.Format(Properties.Resources.connection_string, DataFile);
                 return connection_string;
             }
         }
-        private void VerifyCreated(string directoryName)
+
+        public SQLiteCommandBuilder TimerCommandBuilder { get => timerCommandBuilder; set => timerCommandBuilder = value; }
+        public SQLiteConnection TimerConnection { get => timerConnection; set => timerConnection = value; }
+        public SQLiteCommand Update_command { get => Update_command1; set => Update_command1 = value; }
+        public SQLiteCommand Update_command1 { get => Update_command2; set => Update_command2 = value; }
+        public SQLiteCommand Update_command2 { get => update_command; set => update_command = value; }
+        public SQLiteCommand Insert_command { get => insert_command; set => insert_command = value; }
+        public SQLiteCommand Delete_command { get => delete_command; set => delete_command = value; }
+        public SQLiteCommand Create_command { get => create_command; set => create_command = value; }
+        public SQLiteCommand Select_command { get => select_command; set => select_command = value; }
+
+        private static void VerifyCreated(string directoryName)
         {
             if (Directory.Exists(directoryName)) return;
-            DirectoryInfo di = new DirectoryInfo(directoryName);
-            Queue<string> dirsNames = new Queue<string>();
-            foreach(string part in directoryName.Split(Path.DirectorySeparatorChar))
+            var di = new DirectoryInfo(directoryName);
+            var dirsNames = new Queue<string>();
+            foreach (string part in directoryName.Split(Path.DirectorySeparatorChar))
             {
                 Debug.Print(part);
                 dirsNames.Enqueue(part);
             }
-            string baseDir = dirsNames.Dequeue() + Path.DirectorySeparatorChar.ToString(); Debug.Print(baseDir);
+            var baseDir = dirsNames.Dequeue() + Path.DirectorySeparatorChar.ToString(); Debug.Print(baseDir);
+            var builder = new StringBuilder();
+            builder.Append(baseDir);
             do
             {
                 if (Directory.Exists(baseDir))
@@ -205,26 +220,15 @@ namespace TimeTracker
                 {
                     Directory.CreateDirectory(baseDir);
                 }
-                baseDir += Path.DirectorySeparatorChar.ToString() + dirsNames.Dequeue();
+                builder.Append(Path.DirectorySeparatorChar.ToString() + dirsNames.Dequeue());
             } while (dirsNames.Count > 0);
+            baseDir = builder.ToString();
             if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
         }
         private void BindingNavigatorSaveToDatabase_Click(object sender, EventArgs e)
         {
-            SaveDataEventArgs saveData = new SaveDataEventArgs(SaveDataTarget.SQLiteTimerDatabase, UpdatedTable, timerDataAdapter);
+            var saveData = new SaveDataEventArgs(SaveDataTarget.SQLiteTimerDatabase, AppDataSource, timerDataAdapter);
             SaveData(this, saveData);
-        }
-        private DataTable UpdatedTable
-        {
-            get
-            {
-                DataTable dt = (DataTable)TimersBS.DataSource;
-                dt.TableName = "Timer";
-                dt.Columns[0].ColumnName = "Id";
-                dt.Columns[1].ColumnName = "Name";
-                dt.Columns[2].ColumnName = "Elapsed";
-                return  dt;
-            }
         }
         private void SaveData(object sender, SaveDataEventArgs e)
         {
@@ -243,40 +247,41 @@ namespace TimeTracker
         }
         private void SaveToSQLiteTimerDatabase(object sender, SaveDataEventArgs e)
         {
-            DataGridView dgv = (DataGridView)sender;
-            DataGridViewRowCollection rows = dgv.Rows;            
+            var dgv = (DataGridView)sender;
+            var rows = dgv.Rows;
             e.Adapter.AcceptChangesDuringUpdate = true;
             e.Adapter.UpdateCommand.Connection.Open();
             foreach (DataGridViewRow row in rows)
             {
                 if (row.IsNewRow) continue;
-                List<SQLiteParameter> updates = new List<SQLiteParameter>();
-                {
-                    DataGridViewCell cell = row.Cells[0];
-                    SQLiteParameter idParameter = new SQLiteParameter("@Id", cell.EditedFormattedValue.ToString());
-                    cell = row.Cells[1];
-                    SQLiteParameter nameParameter = new SQLiteParameter("@Name", cell.EditedFormattedValue.ToString());
-                    cell = row.Cells[2];
-                    SQLiteParameter elapsedParameter = new SQLiteParameter("@Elapsed", cell.EditedFormattedValue.ToString());
-                    
-                    updates.Add(idParameter);
-                    updates.Add(nameParameter);
-                    updates.Add(elapsedParameter);
+                var cell = row.Cells[0];
+                var idParameter = new SQLiteParameter("@Id", cell.EditedFormattedValue.ToString());
+                cell = row.Cells[1];
+                var nameParameter = new SQLiteParameter("@Name", cell.EditedFormattedValue.ToString());
+                cell = row.Cells[2];
+                var elapsedParameter = new SQLiteParameter("@Elapsed", cell.EditedFormattedValue.ToString());
 
-                    e.Adapter.AcceptChangesDuringUpdate = true;
-                    e.Adapter.UpdateCommand.Parameters.AddRange(updates.ToArray());
-                    int updatedRow = e.Adapter.UpdateCommand.ExecuteNonQuery();
-                    if (updatedRow == 0)
-                    {
-                        updatedRow = TimerHelper.InsertCommand(row, new SaveInsertDataEventArgs(dgv.NewRowIndex, SaveDataTarget.SQLiteTimerDatabase,
-                                                                                  e.Table, e.Adapter));
-                    }
-                    Debug.Print(string.Format("Rows Affected = {0}", updatedRow));
+                var updates = new List<SQLiteParameter>
+                {
+                    idParameter,
+                    nameParameter,
+                    elapsedParameter
+                };
+
+                e.Adapter.AcceptChangesDuringUpdate = true;
+                e.Adapter.UpdateCommand.Parameters.AddRange(updates.ToArray());
+                var updatedRow = e.Adapter.UpdateCommand.ExecuteNonQuery();
+                if (updatedRow == 0)
+                {
+                    updatedRow = TimerHelper.InsertCommand(row, new SaveInsertDataEventArgs(dgv.NewRowIndex, SaveDataTarget.SQLiteTimerDatabase,
+                                                                                e.Table, e.Adapter));
                 }
+                Debug.Print($"Rows Affected = {updatedRow}");
             }
             e.Adapter.Update(e.Table);
             e.Adapter.UpdateCommand.Connection.Close();
             e.Table.AcceptChanges();
+            TimersBS.DataSource = AppDataSource;
         }
         private void TimerDataGridView_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
         {
@@ -288,17 +293,17 @@ namespace TimeTracker
         }
         private void DeleteSelectedRows()
         {
-            List<int> deleted = new List<int>();
+            var deleted = new List<int>();
             if (TimerDataGridView.SelectedRows.Count == 0) TimerDataGridView.CurrentRow.Selected = true;
             TimerDataGridView.Update();
             foreach (DataGridViewRow row in TimerDataGridView.SelectedRows)
             {
-                string index = row.Cells[0].EditedFormattedValue.ToString();
-                Debug.Print(string.Format("Row to be deleted = {0}", index));
+                var index = row.Cells[0].EditedFormattedValue.ToString();
+                Debug.Print($"Row to be deleted = {index}");
                 DeleteSingleRow(TimerDataGridView, new DataGridViewRowCancelEventArgs(row));
             }
             AppDataSource.AcceptChanges();
-            TimerDataGridView.DataSource = AppDataSource;
+            SetupDataGridView();
             TimerDataGridView.Update();
         }
     }
@@ -309,7 +314,7 @@ namespace TimeTracker
     [Serializable]
     public class SaveInsertDataEventArgs : SaveDataEventArgs
     {
-        int _rowId = -1;
+        readonly int _rowId = -1;
         public int RowID { get => _rowId; }
 
         public SaveInsertDataEventArgs() : base() { }
@@ -321,13 +326,13 @@ namespace TimeTracker
     [Serializable]
     public class SaveDataEventArgs : EventArgs
     {
-        private SaveDataTarget _target;
+        private readonly SaveDataTarget _target;
         public SaveDataTarget Target { get => _target; }
 
-        private DataTable _table;
+        private readonly DataTable _table;
         public DataTable Table { get => _table; }
 
-        private SQLiteDataAdapter _adapter;
+        private readonly SQLiteDataAdapter _adapter;
         public SQLiteDataAdapter Adapter { get => _adapter; }
 
         public SaveDataEventArgs()
@@ -345,7 +350,7 @@ namespace TimeTracker
     {
         public static DataTable SelectAllCommand(SQLiteCommand command)
         {
-            DataTable dt = new DataTable();
+            var dt = new DataTable();
             // Create database adapter using specified query
             using (SQLiteDataAdapter adapter = new SQLiteDataAdapter(command))
             // Create command builder to generate SQL update, insert and delete commands
@@ -359,37 +364,41 @@ namespace TimeTracker
                 catch (System.Data.SQLite.SQLiteException)
                 {
                     File.Delete(command.Connection.DataSource);
-                    throw new TimerDataBaseInvalidException(command.Connection.DataSource,"Invalid database found, creating new database!");                        
+                    throw new TimerDataBaseInvalidException(command.Connection.DataSource, "Invalid database found, creating new database!");
                 }
             }
+            dt.TableName = "Timer";
+            dt.Columns[0].ColumnName = "Id";
+            dt.Columns[1].ColumnName = "Name";
+            dt.Columns[2].ColumnName = "Elapsed";
             return dt;
         }
 
         public static int InsertCommand(object sender, SaveInsertDataEventArgs e)
         {
             Debug.Assert(sender.GetType() == typeof(DataGridViewRow));
-            DataGridViewRow row = (DataGridViewRow)sender;
-            bool IOpenedIt = (e.Adapter.InsertCommand.Connection.State == ConnectionState.Open);
-            if(!IOpenedIt) e.Adapter.InsertCommand.Connection.Open();
-            int result = 0;
-            List<SQLiteParameter> inserts = new List<SQLiteParameter>();
-            {                
-                DataGridViewCell cell = row.Cells[1];
+            var row = (DataGridViewRow)sender;
+            var IOpenedIt = (e.Adapter.InsertCommand.Connection.State == ConnectionState.Open);
+            if (!IOpenedIt) e.Adapter.InsertCommand.Connection.Open();
+            var result = 0;
+            var inserts = new List<SQLiteParameter>();
+            {
+                var cell = row.Cells[1];
 
-                SQLiteParameter nameParameter = new SQLiteParameter("@Name", cell.EditedFormattedValue == null ? string.Empty : cell.EditedFormattedValue.ToString());
+                var nameParameter = new SQLiteParameter("@Name", cell.EditedFormattedValue == null ? string.Empty : cell.EditedFormattedValue.ToString());
                 cell = row.Cells[2];
-                SQLiteParameter elapsedParameter = new SQLiteParameter("@Elapsed", cell.EditedFormattedValue == null ? "00:00:00" : cell.EditedFormattedValue.ToString());
+                var elapsedParameter = new SQLiteParameter("@Elapsed", cell.EditedFormattedValue == null ? "00:00:00" : cell.EditedFormattedValue.ToString());
 
                 //inserts.Add(idParameter);
                 inserts.Add(nameParameter);
                 inserts.Add(elapsedParameter);
-                                
+
                 e.Adapter.InsertCommand.Parameters.AddRange(inserts.ToArray());
                 result = e.Adapter.InsertCommand.ExecuteNonQuery();
 
-                Debug.Print(string.Format("Rows Affected = {0}", result));                
+                Debug.Print($"Rows Affected = {result}");
             }
-            if(!IOpenedIt) e.Adapter.InsertCommand.Connection.Close();
+            if (!IOpenedIt) e.Adapter.InsertCommand.Connection.Close();
             e.Table.AcceptChanges();
             return result;
         }
@@ -397,11 +406,7 @@ namespace TimeTracker
     [Serializable]
     internal class TimerDataBaseInvalidException : Exception
     {
-        string _invalid_data_file = string.Empty;
-        public string InValidDataFile
-        {
-            get => _invalid_data_file;
-        }
+        readonly string _invalid_data_file = string.Empty;
 
         public TimerDataBaseInvalidException()
         {
@@ -419,6 +424,10 @@ namespace TimeTracker
 
         protected TimerDataBaseInvalidException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
+        }
+        public string InValidDataFile
+        {
+            get => _invalid_data_file;
         }
     }
     public static class Extentions
