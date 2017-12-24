@@ -1,1 +1,1 @@
-isnert into {0} values({1}, {2});
+insert into [Timer] values(null, @Name, @Elapsed);

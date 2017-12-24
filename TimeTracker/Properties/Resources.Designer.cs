@@ -91,11 +91,20 @@ namespace TimeTracker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to isnert into {0} values({1}, {2});.
+        ///   Looks up a localized string similar to DELETE FROM [Timer] WHERE Id = @Id;.
         /// </summary>
-        internal static string insert_row {
+        internal static string delete_command {
             get {
-                return ResourceManager.GetString("insert_row", resourceCulture);
+                return ResourceManager.GetString("delete_command", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to insert into [Timer] values(null, @Name, @Elapsed);.
+        /// </summary>
+        internal static string insert_command {
+            get {
+                return ResourceManager.GetString("insert_command", resourceCulture);
             }
         }
         
@@ -115,6 +124,15 @@ namespace TimeTracker.Properties {
         internal static string select_all_rows {
             get {
                 return ResourceManager.GetString("select_all_rows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Id = @Id;.
+        /// </summary>
+        internal static string update_command {
+            get {
+                return ResourceManager.GetString("update_command", resourceCulture);
             }
         }
     }

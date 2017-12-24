@@ -35,7 +35,6 @@
             this.TimerBN = new System.Windows.Forms.BindingNavigator(this.components);
             this.bindingNavigatorAddNewItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorCountItem = new System.Windows.Forms.ToolStripLabel();
-            this.bindingNavigatorDeleteItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMoveFirstItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMovePreviousItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -44,6 +43,7 @@
             this.bindingNavigatorMoveNextItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMoveLastItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.bindingNavigatorDeleteItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSaveToDatabase = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).BeginInit();
@@ -53,19 +53,21 @@
             // 
             // TimerDataGridView
             // 
+            this.TimerDataGridView.AllowUserToDeleteRows = false;
             this.TimerDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TimerDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TimerDataGridView.Location = new System.Drawing.Point(0, 25);
             this.TimerDataGridView.Name = "TimerDataGridView";
             this.TimerDataGridView.Size = new System.Drawing.Size(544, 260);
             this.TimerDataGridView.TabIndex = 0;
+            this.TimerDataGridView.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.TimerDataGridView_CellMouseLeave);
             // 
             // TimerBN
             // 
             this.TimerBN.AddNewItem = this.bindingNavigatorAddNewItem;
             this.TimerBN.BindingSource = this.TimersBS;
             this.TimerBN.CountItem = this.bindingNavigatorCountItem;
-            this.TimerBN.DeleteItem = this.bindingNavigatorDeleteItem;
+            this.TimerBN.DeleteItem = null;
             this.TimerBN.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bindingNavigatorMoveFirstItem,
             this.bindingNavigatorMovePreviousItem,
@@ -105,15 +107,6 @@
             this.bindingNavigatorCountItem.Size = new System.Drawing.Size(35, 22);
             this.bindingNavigatorCountItem.Text = "of {0}";
             this.bindingNavigatorCountItem.ToolTipText = "Total number of items";
-            // 
-            // bindingNavigatorDeleteItem
-            // 
-            this.bindingNavigatorDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.bindingNavigatorDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("bindingNavigatorDeleteItem.Image")));
-            this.bindingNavigatorDeleteItem.Name = "bindingNavigatorDeleteItem";
-            this.bindingNavigatorDeleteItem.RightToLeftAutoMirrorImage = true;
-            this.bindingNavigatorDeleteItem.Size = new System.Drawing.Size(23, 22);
-            this.bindingNavigatorDeleteItem.Text = "Delete";
             // 
             // bindingNavigatorMoveFirstItem
             // 
@@ -175,6 +168,16 @@
             this.bindingNavigatorSeparator2.Name = "bindingNavigatorSeparator2";
             this.bindingNavigatorSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
+            // bindingNavigatorDeleteItem
+            // 
+            this.bindingNavigatorDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.bindingNavigatorDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("bindingNavigatorDeleteItem.Image")));
+            this.bindingNavigatorDeleteItem.Name = "bindingNavigatorDeleteItem";
+            this.bindingNavigatorDeleteItem.RightToLeftAutoMirrorImage = true;
+            this.bindingNavigatorDeleteItem.Size = new System.Drawing.Size(23, 22);
+            this.bindingNavigatorDeleteItem.Text = "Delete";
+            this.bindingNavigatorDeleteItem.Click += new System.EventHandler(this.BindingNavigatorDeleteItem_Click);
+            // 
             // bindingNavigatorSaveToDatabase
             // 
             this.bindingNavigatorSaveToDatabase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -184,6 +187,7 @@
             this.bindingNavigatorSaveToDatabase.Size = new System.Drawing.Size(23, 22);
             this.bindingNavigatorSaveToDatabase.Text = "Save To Database";
             this.bindingNavigatorSaveToDatabase.ToolTipText = "Save To Database";
+            this.bindingNavigatorSaveToDatabase.Click += new System.EventHandler(this.BindingNavigatorSaveToDatabase_Click);
             // 
             // TimeTrackerMainForm
             // 
