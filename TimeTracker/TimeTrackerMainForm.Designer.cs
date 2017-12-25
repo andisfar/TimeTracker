@@ -104,7 +104,6 @@
             // 
             this.TimersBS.DataMember = "Timer";
             this.TimersBS.DataSource = this.TimerDataSet;
-            this.TimersBS.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.TimersBS_AddingNew);
             // 
             // TimerDataSet
             // 
