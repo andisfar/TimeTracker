@@ -36,17 +36,8 @@ namespace TimeTracker
             {
                 { "update", Properties.Resources.update_command },
                 { "select", Properties.Resources.select_all_rows },
-<<<<<<< HEAD
-<<<<<<< HEAD
                 { "delete", Properties.Resources.delete_command },
                 { "insert", Properties.Resources.insert_command }
-=======
-                { "delete", Properties.Resources.delete_command }
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
-                { "delete", Properties.Resources.delete_command },
-                { "insert", Properties.Resources.insert_command }
->>>>>>> Data layer now loads the data from the database.
             };
             //
             dal = new DBAccess(DataFile, commands, new DBAccessEventHandlers
@@ -55,35 +46,18 @@ namespace TimeTracker
                 CreateDBHandler = DataAccessLayer_NeedDatabaseCreateCommand,
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
-<<<<<<< HEAD
-<<<<<<< HEAD
             //
             dal.FillDataTable(TimerDataSet.Tables["Timer"]);
-=======
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
-            //
-            dal.FillDataTable(TimerDataSet.Tables["Timer"]);
->>>>>>> Data layer now loads the data from the database.
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
         {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Data layer now loads the data from the database.
             TimerDataGridView.DataError += TimerDataGridView_DataError;
         }
 
         private void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             
-<<<<<<< HEAD
-=======
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
->>>>>>> Data layer now loads the data from the database.
         }
 
         private void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)

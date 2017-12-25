@@ -102,18 +102,8 @@
             // 
             // TimerBS
             // 
-<<<<<<< HEAD
-<<<<<<< HEAD
             this.TimerBS.DataMember = "Timer";
             this.TimerBS.DataSource = this.TimerDataSet;
-=======
-            this.TimersBS.DataMember = "Timer";
-            this.TimersBS.DataSource = this.TimerDataSet;
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
-            this.TimerBS.DataMember = "Timer";
-            this.TimerBS.DataSource = this.TimerDataSet;
->>>>>>> Data layer now loads the data from the database.
             // 
             // TimerDataSet
             // 

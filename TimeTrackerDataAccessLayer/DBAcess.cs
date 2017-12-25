@@ -33,7 +33,6 @@ namespace TimeTrackerDataAccessLayer
         public void OnNeedCreateDataBaseQuery(object sender, NeedDatabaseConnectionCommandEventArgs e)
         {
             NeedDatabaseCreateCommand?.Invoke(sender, e);
-<<<<<<< HEAD
 
             using (InitializeSQLiteCommandsEventArgs initCmds = new InitializeSQLiteCommandsEventArgs(Commands, Connection))
             {
@@ -47,27 +46,10 @@ namespace TimeTrackerDataAccessLayer
                 };
             }
 
-=======
-
-            using (InitializeSQLiteCommandsEventArgs initCmds = new InitializeSQLiteCommandsEventArgs(Commands, Connection))
-            {
-                OnInitializeSQLiteCommands(this, initCmds);
-                Adapter = new SQLiteDataAdapter
-                {
-                    UpdateCommand = initCmds.Commands[@"update"],
-                    SelectCommand = initCmds.Commands[@"select"],
-                    DeleteCommand = initCmds.Commands[@"delete"],
-                    InsertCommand = initCmds.Commands[@"insert"]
-                };
-            }
-
->>>>>>> Still Implementing DAL.  Debugging init problems
             var connectionstring = string.Empty;
             using (NeedConnectionStringEventArgs needConnEventArgs = new NeedConnectionStringEventArgs(connectionstring))
             {
                 OnNeedConnectionString(this, needConnEventArgs);
-<<<<<<< HEAD
-<<<<<<< HEAD
                 connectionstring = needConnEventArgs.ConnectionString;
                 if (connectionstring == string.Empty) throw new InvalidConnectionStringProvidedException($"'{connectionstring}' is not a valid connection string!");
                 e.CreateDatabase.Connection = Connection = new SQLiteConnection(connectionstring);
@@ -82,43 +64,13 @@ namespace TimeTrackerDataAccessLayer
         #endregion
         public Dictionary<string, string> Commands { get; set; }
         public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
-=======
-=======
-                connectionstring = needConnEventArgs.ConnectionString;
->>>>>>> Data layer now loads the data from the database.
-                if (connectionstring == string.Empty) throw new InvalidConnectionStringProvidedException($"'{connectionstring}' is not a valid connection string!");
-                e.CreateDatabase.Connection = Connection = new SQLiteConnection(connectionstring);
-            }
-        }
-        #endregion
-        #region FillDatabase
-        public void FillDataTable(DataTable dataTable)
-        {
-            commandbuilder.DataAdapter.Fill(dataTable);
-        }
-        #endregion
-        public Dictionary<string, string> Commands { get; set; }
-<<<<<<< HEAD
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
-        public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
->>>>>>> Data layer now loads the data from the database.
         SQLiteCommand name_exists_command;
         SQLiteCommandBuilder commandbuilder;
         public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; set => commandbuilder = value; }
         public SQLiteConnection Connection { get; set; }
         public SQLiteDataAdapter Adapter { get; set; }
-<<<<<<< HEAD
-<<<<<<< HEAD
         public string DatabaseFile { get; set; }        
 
-=======
-        public string DatabaseFile { get; set; }
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
-        public string DatabaseFile { get; set; }        
-
->>>>>>> Data layer now loads the data from the database.
         public DBAccess(string database_file, Dictionary<string,string> commands, DBAccessEventHandlers handlers)
         {
             DatabaseFile = database_file;
@@ -135,10 +87,6 @@ namespace TimeTrackerDataAccessLayer
             VerifyExistsDataBase(DatabaseFile);
 
             Debug.Print(DatabaseFile);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Data layer now loads the data from the database.
             if (Adapter == null)
             {
                 if (Connection == null)
@@ -159,12 +107,6 @@ namespace TimeTrackerDataAccessLayer
                     InsertCommand = initCmds.Commands[@"insert"]
                 };
             }
-<<<<<<< HEAD
-=======
-
->>>>>>> Still Implementing DAL.  Debugging init problems
-=======
->>>>>>> Data layer now loads the data from the database.
             commandbuilder = new SQLiteCommandBuilder(Adapter);
         }
         private static void VerifyCreated(string directoryName)
