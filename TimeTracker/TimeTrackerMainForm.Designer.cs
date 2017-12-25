@@ -63,8 +63,6 @@
             // 
             // TimerDataGridView
             // 
-            this.TimerDataGridView.AllowUserToAddRows = false;
-            this.TimerDataGridView.AllowUserToDeleteRows = false;
             this.TimerDataGridView.AutoGenerateColumns = false;
             this.TimerDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TimerDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -150,10 +148,10 @@
             // 
             // TimerBN
             // 
-            this.TimerBN.AddNewItem = null;
+            this.TimerBN.AddNewItem = this.bindingNavigatorAddNewItem;
             this.TimerBN.BindingSource = this.TimerBS;
             this.TimerBN.CountItem = this.bindingNavigatorCountItem;
-            this.TimerBN.DeleteItem = null;
+            this.TimerBN.DeleteItem = this.bindingNavigatorDeleteItem;
             this.TimerBN.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bindingNavigatorMoveFirstItem,
             this.bindingNavigatorMovePreviousItem,

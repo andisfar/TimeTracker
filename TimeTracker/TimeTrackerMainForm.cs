@@ -54,11 +54,30 @@ namespace TimeTracker
         }
         private void ConnectEventHandlers()
         {
+            #region TimerDataGridView Events
             TimerDataGridView.DataError += TimerDataGridView_DataError;
+            TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
+            #endregion
+            #region dal CommandBuilder DataAdapter Events
             dal.TimerCommandBuilder.DataAdapter.FillError += DataAdapter_FillError;
             dal.TimerCommandBuilder.DataAdapter.RowUpdated += DataAdapter_RowUpdated;
             dal.TimerCommandBuilder.DataAdapter.RowUpdating += DataAdapter_RowUpdating;
+            #endregion
+            #region dal CommandBuilder DataAdapter InsertCommand Connection Events
+            dal.TimerCommandBuilder.DataAdapter.InsertCommand.Connection.Update += InsertConnection_Update;
+            #endregion
+        }
 
+        private static void InsertConnection_Update(object sender, System.Data.SQLite.UpdateEventArgs e)
+        {
+            Log_Message(e.Event.ToString());
+        }
+
+        private void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            Log_Message($"(Row,\tColumn)");
+            Log_Message($"({e.RowIndex},\t\t{e.ColumnIndex})");
+            Log_Message($"Cell End Edit!");
         }
 
         private static void DataAdapter_RowUpdating(object sender, System.Data.Common.RowUpdatingEventArgs e)
@@ -91,7 +110,7 @@ namespace TimeTracker
 
         private static void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            
+            Log_Message($"{e.Exception.Message} : Number {e.Exception.HResult}");   
         }
 
         private static void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
