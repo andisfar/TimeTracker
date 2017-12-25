@@ -62,6 +62,7 @@ namespace TimeTrackerDataAccessLayer
             commandbuilder.DataAdapter.Fill(dataTable);
         }
         #endregion
+        #region Firld_Property_Defs
         public Dictionary<string, string> Commands { get; set; }
         public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
         SQLiteCommand name_exists_command;
@@ -69,8 +70,8 @@ namespace TimeTrackerDataAccessLayer
         public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; set => commandbuilder = value; }
         public SQLiteConnection Connection { get; set; }
         public SQLiteDataAdapter Adapter { get; set; }
-        public string DatabaseFile { get; set; }        
-
+        public string DatabaseFile { get; set; }
+        #endregion
         public DBAccess(string database_file, Dictionary<string,string> commands, DBAccessEventHandlers handlers)
         {
             DatabaseFile = database_file;
@@ -78,14 +79,10 @@ namespace TimeTrackerDataAccessLayer
             NeedDatabaseCreateCommand += handlers.CreateDBHandler;
             NeedConnectionString += handlers.ConnectionStringHandler;
             InitializeSQLiteCommands += handlers.CommandInitHandler;
-
             var dataFileInfo = new FileInfo(database_file);
             VerifyCreated(dataFileInfo.DirectoryName);
-
             Debug.Assert(Directory.Exists(dataFileInfo.DirectoryName));
-
             VerifyExistsDataBase(DatabaseFile);
-
             Debug.Print(DatabaseFile);
             if (Adapter == null)
             {
