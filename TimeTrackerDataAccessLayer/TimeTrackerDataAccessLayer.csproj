@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="sqlite" Version="3.13.0" />
+    <PackageReference Include="SQLite.Native" Version="3.12.3" />
+    <PackageReference Include="sqlite.redist" Version="3.8.4.2" />
+    <PackageReference Include="sqlite.symbols" Version="3.8.4.2" />
+    <PackageReference Include="System.Data.SQLite.Core.MSIL" Version="1.0.106" />
+    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.106" />
+    <PackageReference Include="System.Data.SQLite.x64" Version="1.0.106" />
+  </ItemGroup>
+
+</Project>
