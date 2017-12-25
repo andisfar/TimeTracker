@@ -11,6 +11,7 @@ namespace TimeTrackerDataAccessLayer
 {
     public class DBAccess
     {
+        #region EventHandlerDefs
         #region InitializeCommandEvent
         public delegate void NeedCommandsInitializedHandler(object sender, InitializeSQLiteCommandsEventArgs e);
         public event NeedCommandsInitializedHandler InitializeSQLiteCommands;
@@ -56,6 +57,7 @@ namespace TimeTrackerDataAccessLayer
             }
         }
         #endregion
+        #endregion
         #region FillDatabase
         public void FillDataTable(DataTable dataTable)
         {
@@ -67,7 +69,7 @@ namespace TimeTrackerDataAccessLayer
         public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
         SQLiteCommand name_exists_command;
         SQLiteCommandBuilder commandbuilder;
-        public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; set => commandbuilder = value; }
+        public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; }
         public SQLiteConnection Connection { get; set; }
         public SQLiteDataAdapter Adapter { get; set; }
         public string DatabaseFile { get; set; }
@@ -160,11 +162,12 @@ namespace TimeTrackerDataAccessLayer
             // if all is well the database exists and is populated with default info or alredy existed
         }
     }
-
+    #region EventHandlerTypes
     public class DBAccessEventHandlers : EventArgs
     {
         public NeedCommandsInitializedHandler CommandInitHandler { get; set; }
         public NeedConnectionStringHandler ConnectionStringHandler { get; set; }
         public NeedDatabaseCreateCommandHandler CreateDBHandler { get; set; }
     }
+    #endregion
 }

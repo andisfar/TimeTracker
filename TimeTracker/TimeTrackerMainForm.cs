@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using TimeTrackerDataAccessLayer;
@@ -47,20 +49,52 @@ namespace TimeTracker
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
             //
-            dal.FillDataTable(TimerDataSet.Tables["Timer"]);
+            dal.FillDataTable(TimerDataSet.Tables[nameof(Timer)]);
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
         {
             TimerDataGridView.DataError += TimerDataGridView_DataError;
+            dal.TimerCommandBuilder.DataAdapter.FillError += DataAdapter_FillError;
+            dal.TimerCommandBuilder.DataAdapter.RowUpdated += DataAdapter_RowUpdated;
+            dal.TimerCommandBuilder.DataAdapter.RowUpdating += DataAdapter_RowUpdating;
+
         }
 
-        private void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        private static void DataAdapter_RowUpdating(object sender, System.Data.Common.RowUpdatingEventArgs e)
+        {
+            Log_Message(e.StatementType.ToString());
+            Log_Message(e.Status.ToString());
+        }
+
+        private static void Log_Message(string message)
+        {
+            Debug.Print(message);
+        }
+
+        private static void DataAdapter_RowUpdated(object sender, System.Data.Common.RowUpdatedEventArgs e)
+        {
+            Log_Message($"{e.RecordsAffected} rows affected!");
+            Log_Message(e.StatementType.ToString());
+            Log_Message(e.Status.ToString());
+        }
+
+        private static void DataAdapter_FillError(object sender, System.Data.FillErrorEventArgs e)
+        {
+            Log_Error(e.Errors.Message);
+        }
+
+        private static void Log_Error(string message)
+        {
+            Debug.Print(message);
+        }
+
+        private static void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             
         }
 
-        private void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
+        private static void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
         {
             e.ConnectionString = ConnectionString;
         }
