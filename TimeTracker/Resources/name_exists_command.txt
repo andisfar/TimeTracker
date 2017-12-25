@@ -1,0 +1,1 @@
+SELECT Count(*) FROM [Timer] WHERE Name = @Name;

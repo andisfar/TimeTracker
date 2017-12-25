@@ -109,6 +109,15 @@ namespace TimeTracker.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SELECT Name FROM [Timer] WHERE Name = @Name;.
+        /// </summary>
+        internal static string name_exists_command {
+            get {
+                return ResourceManager.GetString("name_exists_command", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Save {
@@ -128,7 +137,7 @@ namespace TimeTracker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Id = @Id;.
+        ///   Looks up a localized string similar to UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Name = @Name;.
         /// </summary>
         internal static string update_command {
             get {

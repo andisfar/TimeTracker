@@ -27,13 +27,20 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
-        {           
+        {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimeTrackerMainForm));
             this.TimerDataGridView = new System.Windows.Forms.DataGridView();
+            this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.elapsedDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TimersBS = new System.Windows.Forms.BindingSource(this.components);
+            this.TimerDataSet = new System.Data.DataSet();
+            this.Timer = new System.Data.DataTable();
+            this.Id = new System.Data.DataColumn();
+            this.TimerName = new System.Data.DataColumn();
+            this.Elapsed = new System.Data.DataColumn();
             this.TimerBN = new System.Windows.Forms.BindingNavigator(this.components);
-            this.bindingNavigatorAddNewItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorCountItem = new System.Windows.Forms.ToolStripLabel();
             this.bindingNavigatorMoveFirstItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMovePreviousItem = new System.Windows.Forms.ToolStripButton();
@@ -43,10 +50,13 @@
             this.bindingNavigatorMoveNextItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorMoveLastItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.bindingNavigatorAddNewItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorDeleteItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSaveToDatabase = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerDataSet)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).BeginInit();
             this.TimerBN.SuspendLayout();
             this.SuspendLayout();
@@ -55,17 +65,93 @@
             // 
             this.TimerDataGridView.AllowUserToAddRows = false;
             this.TimerDataGridView.AllowUserToDeleteRows = false;
+            this.TimerDataGridView.AutoGenerateColumns = false;
             this.TimerDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.TimerDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.idDataGridViewTextBoxColumn,
+            this.nameDataGridViewTextBoxColumn,
+            this.elapsedDataGridViewTextBoxColumn});
+            this.TimerDataGridView.DataSource = this.TimersBS;
             this.TimerDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TimerDataGridView.Location = new System.Drawing.Point(0, 25);
             this.TimerDataGridView.Name = "TimerDataGridView";
             this.TimerDataGridView.Size = new System.Drawing.Size(544, 260);
             this.TimerDataGridView.TabIndex = 0;
-            this.TimerDataGridView.CellMouseLeave += new System.Windows.Forms.DataGridViewCellEventHandler(this.TimerDataGridView_CellMouseLeave);
+            // 
+            // idDataGridViewTextBoxColumn
+            // 
+            this.idDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.idDataGridViewTextBoxColumn.DataPropertyName = "id";
+            this.idDataGridViewTextBoxColumn.HeaderText = "id";
+            this.idDataGridViewTextBoxColumn.Name = "idDataGridViewTextBoxColumn";
+            this.idDataGridViewTextBoxColumn.Visible = false;
+            // 
+            // nameDataGridViewTextBoxColumn
+            // 
+            this.nameDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
+            this.nameDataGridViewTextBoxColumn.HeaderText = "Name";
+            this.nameDataGridViewTextBoxColumn.Name = "nameDataGridViewTextBoxColumn";
+            // 
+            // elapsedDataGridViewTextBoxColumn
+            // 
+            this.elapsedDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.elapsedDataGridViewTextBoxColumn.DataPropertyName = "Elapsed";
+            this.elapsedDataGridViewTextBoxColumn.HeaderText = "Elapsed";
+            this.elapsedDataGridViewTextBoxColumn.Name = "elapsedDataGridViewTextBoxColumn";
+            // 
+            // TimersBS
+            // 
+            this.TimersBS.DataMember = "Timer";
+            this.TimersBS.DataSource = this.TimerDataSet;
+            this.TimersBS.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.TimersBS_AddingNew);
+            // 
+            // TimerDataSet
+            // 
+            this.TimerDataSet.CaseSensitive = true;
+            this.TimerDataSet.DataSetName = "TimerDS";
+            this.TimerDataSet.Namespace = "TimerDataSetNS";
+            this.TimerDataSet.Tables.AddRange(new System.Data.DataTable[] {
+            this.Timer});
+            // 
+            // Timer
+            // 
+            this.Timer.CaseSensitive = true;
+            this.Timer.Columns.AddRange(new System.Data.DataColumn[] {
+            this.Id,
+            this.TimerName,
+            this.Elapsed});
+            this.Timer.Constraints.AddRange(new System.Data.Constraint[] {
+            new System.Data.UniqueConstraint("Constraint1", new string[] {
+                        "id"}, true),
+            new System.Data.UniqueConstraint("Constraint2", new string[] {
+                        "Name"}, false)});
+            this.Timer.Namespace = "TimerDataSetNS";
+            this.Timer.PrimaryKey = new System.Data.DataColumn[] {
+        this.Id};
+            this.Timer.TableName = "Timer";
+            // 
+            // Id
+            // 
+            this.Id.AllowDBNull = false;
+            this.Id.AutoIncrement = true;
+            this.Id.Caption = "id";
+            this.Id.ColumnName = "id";
+            this.Id.DataType = typeof(int);
+            // 
+            // TimerName
+            // 
+            this.TimerName.Caption = "Name";
+            this.TimerName.ColumnName = "Name";
+            // 
+            // Elapsed
+            // 
+            this.Elapsed.Caption = "Elapsed";
+            this.Elapsed.ColumnName = "Elapsed";
             // 
             // TimerBN
             // 
-            this.TimerBN.AddNewItem = this.bindingNavigatorAddNewItem;
+            this.TimerBN.AddNewItem = null;
             this.TimerBN.BindingSource = this.TimersBS;
             this.TimerBN.CountItem = this.bindingNavigatorCountItem;
             this.TimerBN.DeleteItem = null;
@@ -92,15 +178,6 @@
             this.TimerBN.Size = new System.Drawing.Size(544, 25);
             this.TimerBN.TabIndex = 1;
             this.TimerBN.Text = "bindingNavigator1";
-            // 
-            // bindingNavigatorAddNewItem
-            // 
-            this.bindingNavigatorAddNewItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.bindingNavigatorAddNewItem.Image = ((System.Drawing.Image)(resources.GetObject("bindingNavigatorAddNewItem.Image")));
-            this.bindingNavigatorAddNewItem.Name = "bindingNavigatorAddNewItem";
-            this.bindingNavigatorAddNewItem.RightToLeftAutoMirrorImage = true;
-            this.bindingNavigatorAddNewItem.Size = new System.Drawing.Size(23, 22);
-            this.bindingNavigatorAddNewItem.Text = "Add new";
             // 
             // bindingNavigatorCountItem
             // 
@@ -169,26 +246,33 @@
             this.bindingNavigatorSeparator2.Name = "bindingNavigatorSeparator2";
             this.bindingNavigatorSeparator2.Size = new System.Drawing.Size(6, 25);
             // 
+            // bindingNavigatorAddNewItem
+            // 
+            this.bindingNavigatorAddNewItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.bindingNavigatorAddNewItem.Image = ((System.Drawing.Image)(resources.GetObject("bindingNavigatorAddNewItem.Image")));
+            this.bindingNavigatorAddNewItem.Name = "bindingNavigatorAddNewItem";
+            this.bindingNavigatorAddNewItem.RightToLeftAutoMirrorImage = true;
+            this.bindingNavigatorAddNewItem.Size = new System.Drawing.Size(23, 22);
+            this.bindingNavigatorAddNewItem.Text = "Add new";
+            // 
             // bindingNavigatorDeleteItem
             // 
             this.bindingNavigatorDeleteItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.bindingNavigatorDeleteItem.Image = ((System.Drawing.Image)(resources.GetObject("bindingNavigatorDeleteItem.Image")));
             this.bindingNavigatorDeleteItem.Name = "bindingNavigatorDeleteItem";
-            this.bindingNavigatorDeleteItem.RightToLeftAutoMirrorImage = true;
             this.bindingNavigatorDeleteItem.Size = new System.Drawing.Size(23, 22);
             this.bindingNavigatorDeleteItem.Text = "Delete";
-            this.bindingNavigatorDeleteItem.Click += new System.EventHandler(this.BindingNavigatorDeleteItem_Click);
             // 
             // bindingNavigatorSaveToDatabase
             // 
             this.bindingNavigatorSaveToDatabase.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.bindingNavigatorSaveToDatabase.Enabled = false;
             this.bindingNavigatorSaveToDatabase.Image = global::TimeTracker.Properties.Resources.Save;
             this.bindingNavigatorSaveToDatabase.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.bindingNavigatorSaveToDatabase.Name = "bindingNavigatorSaveToDatabase";
             this.bindingNavigatorSaveToDatabase.Size = new System.Drawing.Size(23, 22);
             this.bindingNavigatorSaveToDatabase.Text = "Save To Database";
             this.bindingNavigatorSaveToDatabase.ToolTipText = "Save To Database";
-            this.bindingNavigatorSaveToDatabase.Click += new System.EventHandler(this.BindingNavigatorSaveToDatabase_Click);
             // 
             // TimeTrackerMainForm
             // 
@@ -198,9 +282,11 @@
             this.Controls.Add(this.TimerDataGridView);
             this.Controls.Add(this.TimerBN);
             this.Name = "TimeTrackerMainForm";
-            this.Text = "Form1";
+            this.Text = "Time Trackers";
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerDataSet)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.Timer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).EndInit();
             this.TimerBN.ResumeLayout(false);
             this.TimerBN.PerformLayout();
@@ -226,6 +312,14 @@
         private System.Windows.Forms.ToolStripButton bindingNavigatorMoveLastItem;
         private System.Windows.Forms.ToolStripSeparator bindingNavigatorSeparator2;
         private System.Windows.Forms.ToolStripButton bindingNavigatorSaveToDatabase;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn elapsedDataGridViewTextBoxColumn;
+        private System.Data.DataSet TimerDataSet;
+        private System.Data.DataTable Timer;
+        private System.Data.DataColumn Id;
+        private System.Data.DataColumn TimerName;
+        private System.Data.DataColumn Elapsed;
     }
 }
 

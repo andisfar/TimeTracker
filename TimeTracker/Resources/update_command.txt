@@ -1,1 +1,1 @@
-UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Name = @Name;
+UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Id = @Id;

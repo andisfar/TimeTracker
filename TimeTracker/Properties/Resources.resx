@@ -139,4 +139,7 @@
   <data name="update_command" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\update_command.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="name_exists_command" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\name_exists_command.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
 </root>
