@@ -36,7 +36,8 @@ namespace TimeTracker
             {
                 { "update", Properties.Resources.update_command },
                 { "select", Properties.Resources.select_all_rows },
-                { "delete", Properties.Resources.delete_command }
+                { "delete", Properties.Resources.delete_command },
+                { "insert", Properties.Resources.insert_command }
             };
             //
             dal = new DBAccess(DataFile, commands, new DBAccessEventHandlers
@@ -45,10 +46,18 @@ namespace TimeTracker
                 CreateDBHandler = DataAccessLayer_NeedDatabaseCreateCommand,
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
+            //
+            dal.FillDataTable(TimerDataSet.Tables["Timer"]);
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
         {
+            TimerDataGridView.DataError += TimerDataGridView_DataError;
+        }
+
+        private void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            
         }
 
         private void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)

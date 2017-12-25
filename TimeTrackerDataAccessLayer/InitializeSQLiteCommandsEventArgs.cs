@@ -43,10 +43,7 @@ namespace TimeTrackerDataAccessLayer
             Debug.Assert(me != null);
             foreach(string commandKey in commands.Keys)
             {
-                using (SQLiteCommand sqlite_cmd = new SQLiteCommand(commands[commandKey], connection))
-                {
-                    me.Add(commandKey, sqlite_cmd);
-                }
+                me.Add(commandKey, new SQLiteCommand(commands[commandKey], connection));
             }
         }
 
@@ -58,6 +55,7 @@ namespace TimeTrackerDataAccessLayer
             {
                 using (SQLiteCommand sqlite_cmd = new SQLiteCommand(commands[commandKey]))
                 {
+                    if (me.ContainsKey(commandKey)) continue;
                     me.Add(commandKey, sqlite_cmd);
                 }
             }
