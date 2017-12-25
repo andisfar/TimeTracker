@@ -12,100 +12,28 @@ namespace TimeTracker
 {
     public partial class TimeTrackerMainForm : Form
     {
-        SQLiteDataAdapter timerDataAdapter;
-        SQLiteCommandBuilder timerCommandBuilder;
-        public SQLiteCommandBuilder TimerCommandBuilder { get => timerCommandBuilder; set => timerCommandBuilder = value; }
-        SQLiteConnection timerConnection;
-        public SQLiteConnection TimerConnection { get => timerConnection; set => timerConnection = value; }
         private static string ConnectionString
         {
-            get
-            {
-                var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default["DataFile"].ToString();
-                var connection_string = string.Format(Properties.Resources.connection_string, DataFile);
-                return connection_string;
-            }
+            get => get_connection_string();
         }
-        SQLiteCommand update_command;
-        SQLiteCommand insert_command;
-        SQLiteCommand delete_command;
-        SQLiteCommand create_command;
-        SQLiteCommand select_all_command;
-        SQLiteCommand name_exists_command;
-
+        private static string get_connection_string()
+        {
+            var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default["DataFile"].ToString();
+            var connection_string = string.Format(Properties.Resources.connection_string, DataFile);
+            return connection_string;
+        }
         public TimeTrackerMainForm()
         {
             InitializeComponent();
             var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default[@"DataFile"].ToString();
             var dataFileInfo = new FileInfo(DataFile);
-            VerifyCreated(dataFileInfo.DirectoryName);
-            Debug.Assert(Directory.Exists(dataFileInfo.DirectoryName));
-            VerifyExistsDataBase(DataFile);
-            Debug.Print(DataFile);
-            TimerConnection = new SQLiteConnection(ConnectionString);
-            update_command = new SQLiteCommand(Properties.Resources.update_command, TimerConnection);
-            insert_command = new SQLiteCommand(Properties.Resources.insert_command, TimerConnection);
-            delete_command = new SQLiteCommand(Properties.Resources.delete_command, TimerConnection);
-            create_command = new SQLiteCommand(Properties.Resources.dbo_CreateTimer, TimerConnection);
-            select_all_command = new SQLiteCommand(Properties.Resources.select_all_rows, TimerConnection);
-            name_exists_command = new SQLiteCommand(Properties.Resources.name_exists_command, TimerConnection);
-            timerDataAdapter = new SQLiteDataAdapter
-            {
-                UpdateCommand = update_command,
-                DeleteCommand = delete_command,
-                InsertCommand = insert_command,
-                SelectCommand = select_all_command
-            };
+            
+            
             TimerCommandBuilder = new SQLiteCommandBuilder(timerDataAdapter);
             SetupDataSource(DataFile);
             ConnectEventHandlers();
         }
-        private static void VerifyCreated(string directoryName)
-        {
-            if (Directory.Exists(directoryName)) return;
-            var di = new DirectoryInfo(directoryName);
-            var dirsNames = new Queue<string>();
-            foreach (string part in directoryName.Split(Path.DirectorySeparatorChar))
-            {
-                Debug.Print(part);
-                dirsNames.Enqueue(part);
-            }
-            var baseDir = dirsNames.Dequeue() + Path.DirectorySeparatorChar.ToString(); Debug.Print(baseDir);
-            var builder = new StringBuilder();
-            builder.Append(baseDir);
-            do
-            {
-                if (Directory.Exists(baseDir))
-                {
-                    Debug.Print(baseDir + " exists!");
-                }
-                else
-                {
-                    Directory.CreateDirectory(baseDir);
-                }
-                builder.Append(Path.DirectorySeparatorChar.ToString() + dirsNames.Dequeue());
-            } while (dirsNames.Count > 0);
-            baseDir = builder.ToString();
-            if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
-        }
-        private static void VerifyExistsDataBase(string dataFile)
-        {
-            var connection_string = string.Format(Properties.Resources.connection_string, dataFile);
-            var connection = new SQLiteConnection(connection_string, true);
-            if (!File.Exists(dataFile))
-            {
-                var sql_create_text = Properties.Resources.dbo_CreateTimer;
-                // open the database connection
-                connection.Open();
-                using (var create_db_command = new SQLiteCommand(sql_create_text, connection))
-                {
-                    create_db_command.ExecuteNonQuery();
-                    // close the database connection
-                    connection.Close();
-                }
-            }
-            // if all is well the database exists and is populated with default info or alredy existed
-        }
+        
         private void SetupDataSource(string DataFile)
         {
             try
