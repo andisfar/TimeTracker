@@ -4,6 +4,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using static TimeTrackerDataAccessLayer.DBAccess;
 
 namespace TimeTrackerDataAccessLayer
 {
@@ -11,7 +12,7 @@ namespace TimeTrackerDataAccessLayer
     {
         #region InitializeCommandEvent
         public delegate void NeedCommandsInitializedHandler(object sender, InitializeSQLiteCommandsEventArgs e);
-        public event NeedCommandsInitializedHandler InitializeSQLiteCommands;  
+        public event NeedCommandsInitializedHandler InitializeSQLiteCommands;
         public void OnInitializeSQLiteCommands(object sender, InitializeSQLiteCommandsEventArgs e)
         {
             InitializeSQLiteCommands?.Invoke(sender, e);
@@ -25,33 +26,17 @@ namespace TimeTrackerDataAccessLayer
             NeedConnectionString?.Invoke(sender, e);
         }
         #endregion
-
-        SQLiteCommand name_exists_command;
-        SQLiteCommandBuilder commandbuilder;
-        public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; set => commandbuilder = value; }
-        readonly SQLiteConnection connection;
-        readonly SQLiteDataAdapter adapter;
-
-        public string DatabaseFile { get; set; }
-        public DBAccess(string database_file, Dictionary<string,string> commands)
+        #region CreateDatabaseCommandEvent
+        public delegate void NeedDatabaseCreateCommandHandler(object sender, NeedDatabaseConnectionCommandEventArgs e);
+        public event NeedDatabaseCreateCommandHandler NeedDatabaseCreateCommand;
+        public void OnNeedCreateDataBaseQuery(object sender, NeedDatabaseConnectionCommandEventArgs e)
         {
-            DatabaseFile = database_file;
-            var dataFileInfo = new FileInfo(database_file);
-            VerifyCreated(dataFileInfo.DirectoryName);
-            Debug.Assert(Directory.Exists(dataFileInfo.DirectoryName));
-            VerifyExistsDataBase(DatabaseFile);
-            Debug.Print(DatabaseFile);
-            var connectionstring = string.Empty;
-            using (NeedConnectionStringEventArgs needConnEventArgs = new NeedConnectionStringEventArgs(connectionstring))
-            {
-                OnNeedConnectionString(this, needConnEventArgs);
-                if (connectionstring == string.Empty) throw new InvalidConnectionStringProvidedException($"'{connectionstring}' is not a valid connection string!");
-                connection = new SQLiteConnection(connectionstring);
-            }
-            using (InitializeSQLiteCommandsEventArgs initCmds = new InitializeSQLiteCommandsEventArgs(commands, connection))
+            NeedDatabaseCreateCommand?.Invoke(sender, e);
+
+            using (InitializeSQLiteCommandsEventArgs initCmds = new InitializeSQLiteCommandsEventArgs(Commands, Connection))
             {
                 OnInitializeSQLiteCommands(this, initCmds);
-                adapter = new SQLiteDataAdapter()
+                Adapter = new SQLiteDataAdapter
                 {
                     UpdateCommand = initCmds.Commands[@"update"],
                     SelectCommand = initCmds.Commands[@"select"],
@@ -59,9 +44,42 @@ namespace TimeTrackerDataAccessLayer
                     InsertCommand = initCmds.Commands["@insert"]
                 };
             }
-            commandbuilder = new SQLiteCommandBuilder(adapter);
-        }
 
+            var connectionstring = string.Empty;
+            using (NeedConnectionStringEventArgs needConnEventArgs = new NeedConnectionStringEventArgs(connectionstring))
+            {
+                OnNeedConnectionString(this, needConnEventArgs);
+                if (connectionstring == string.Empty) throw new InvalidConnectionStringProvidedException($"'{connectionstring}' is not a valid connection string!");
+                Connection = new SQLiteConnection(connectionstring);
+            }
+        }
+        #endregion
+        public Dictionary<string, string> Commands { get; set; }
+        SQLiteCommand name_exists_command;
+        SQLiteCommandBuilder commandbuilder;
+        public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; set => commandbuilder = value; }
+        public SQLiteConnection Connection { get; set; }
+        public SQLiteDataAdapter Adapter { get; set; }
+        public string DatabaseFile { get; set; }
+        public DBAccess(string database_file, Dictionary<string,string> commands, DBAccessEventHandlers handlers)
+        {
+            DatabaseFile = database_file;
+            Commands = commands;
+            NeedDatabaseCreateCommand += handlers.CreateDBHandler;
+            NeedConnectionString += handlers.ConnectionStringHandler;
+            InitializeSQLiteCommands += handlers.CommandInitHandler;
+
+            var dataFileInfo = new FileInfo(database_file);
+            VerifyCreated(dataFileInfo.DirectoryName);
+
+            Debug.Assert(Directory.Exists(dataFileInfo.DirectoryName));
+
+            VerifyExistsDataBase(DatabaseFile);
+
+            Debug.Print(DatabaseFile);
+
+            commandbuilder = new SQLiteCommandBuilder(Adapter);
+        }
         private static void VerifyCreated(string directoryName)
         {
             if (Directory.Exists(directoryName)) return;
@@ -72,6 +90,11 @@ namespace TimeTrackerDataAccessLayer
                 Debug.Print(part);
                 dirsNames.Enqueue(part);
             }
+            var baseDir = CheckBuildBaseDir(dirsNames);
+            if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
+        }
+        private static string CheckBuildBaseDir(Queue<string> dirsNames)
+        {
             var baseDir = dirsNames.Dequeue() + Path.DirectorySeparatorChar.ToString(); Debug.Print(baseDir);
             var builder = new StringBuilder();
             builder.Append(baseDir);
@@ -88,25 +111,34 @@ namespace TimeTrackerDataAccessLayer
                 builder.Append(Path.DirectorySeparatorChar.ToString() + dirsNames.Dequeue());
             } while (dirsNames.Count > 0);
             baseDir = builder.ToString();
-            if (!Directory.Exists(baseDir)) Directory.CreateDirectory(baseDir);
+            return baseDir;
         }
-        private static void VerifyExistsDataBase(string dataFile)
+        private void VerifyExistsDataBase(string dataFile)
         {
-            var connection_string = string.Format(Properties.Resources.connection_string, dataFile);
-            var connection = new SQLiteConnection(connection_string, true);
             if (!File.Exists(dataFile))
             {
-                var sql_create_text = Properties.Resources.dbo_CreateTimer;
-                // open the database connection
-                connection.Open();
-                using (var create_db_command = new SQLiteCommand(sql_create_text, connection))
+                using (NeedDatabaseConnectionCommandEventArgs cr_db = new NeedDatabaseConnectionCommandEventArgs())
                 {
-                    create_db_command.ExecuteNonQuery();
+                    OnNeedCreateDataBaseQuery(this, cr_db);
+                    if(cr_db.CreateDatabase == null)
+                    {
+                        throw new MissingCreateDatabaseCommandException("Database creation script not found!");
+                    }
+                    // open the database connection
+                    cr_db.CreateDatabase.Connection.Open();
+                    cr_db.CreateDatabase.ExecuteNonQuery();
                     // close the database connection
-                    connection.Close();
+                    Connection.Close();
                 }
             }
             // if all is well the database exists and is populated with default info or alredy existed
         }
+    }
+
+    public class DBAccessEventHandlers : EventArgs
+    {
+        public NeedCommandsInitializedHandler CommandInitHandler { get; set; }
+        public NeedConnectionStringHandler ConnectionStringHandler { get; set; }
+        public NeedDatabaseCreateCommandHandler CreateDBHandler { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace TimeTrackerDataAccessLayer
     public class InitializeSQLiteCommandsEventArgs : EventArgs, IDisposable
     {
         Dictionary<string,SQLiteCommand> _commands;
-        public Dictionary<string,SQLiteCommand> Commands { get => _commands; }
+        public Dictionary<string,SQLiteCommand> Commands { get => _commands; set => _commands = value; }
         public InitializeSQLiteCommandsEventArgs(Dictionary<string,string> commands, SQLiteConnection connection):base()
         {
             _commands = new Dictionary<string,SQLiteCommand>();
@@ -25,12 +25,21 @@ namespace TimeTrackerDataAccessLayer
             _commands = null;
             GC.SuppressFinalize(this);
         }
+
+        public void InitializeCommands()
+        {
+            if(Commands == null)
+            {
+                Commands = new Dictionary<string, SQLiteCommand>();
+            }
+        }
     }
 
     public static class Extentions
     {
         public static void AddRange(this Dictionary<string, SQLiteCommand> me, Dictionary<string, string> commands, SQLiteConnection connection)
         {
+            if (me == null) me = new Dictionary<string, SQLiteCommand>();
             Debug.Assert(me != null);
             foreach(string commandKey in commands.Keys)
             {
@@ -43,6 +52,7 @@ namespace TimeTrackerDataAccessLayer
 
         public static void AddRange(this Dictionary<string, SQLiteCommand> me, Dictionary<string, string> commands)
         {
+            if (me == null) me = new Dictionary<string, SQLiteCommand>();
             Debug.Assert(me != null);
             foreach (string commandKey in commands.Keys)
             {
