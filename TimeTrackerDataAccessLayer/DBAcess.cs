@@ -33,6 +33,7 @@ namespace TimeTrackerDataAccessLayer
         public void OnNeedCreateDataBaseQuery(object sender, NeedDatabaseConnectionCommandEventArgs e)
         {
             NeedDatabaseCreateCommand?.Invoke(sender, e);
+<<<<<<< HEAD
 
             using (InitializeSQLiteCommandsEventArgs initCmds = new InitializeSQLiteCommandsEventArgs(Commands, Connection))
             {
@@ -46,10 +47,26 @@ namespace TimeTrackerDataAccessLayer
                 };
             }
 
+=======
+
+            using (InitializeSQLiteCommandsEventArgs initCmds = new InitializeSQLiteCommandsEventArgs(Commands, Connection))
+            {
+                OnInitializeSQLiteCommands(this, initCmds);
+                Adapter = new SQLiteDataAdapter
+                {
+                    UpdateCommand = initCmds.Commands[@"update"],
+                    SelectCommand = initCmds.Commands[@"select"],
+                    DeleteCommand = initCmds.Commands[@"delete"],
+                    InsertCommand = initCmds.Commands["@insert"]
+                };
+            }
+
+>>>>>>> Still Implementing DAL.  Debugging init problems
             var connectionstring = string.Empty;
             using (NeedConnectionStringEventArgs needConnEventArgs = new NeedConnectionStringEventArgs(connectionstring))
             {
                 OnNeedConnectionString(this, needConnEventArgs);
+<<<<<<< HEAD
                 connectionstring = needConnEventArgs.ConnectionString;
                 if (connectionstring == string.Empty) throw new InvalidConnectionStringProvidedException($"'{connectionstring}' is not a valid connection string!");
                 e.CreateDatabase.Connection = Connection = new SQLiteConnection(connectionstring);
@@ -64,13 +81,25 @@ namespace TimeTrackerDataAccessLayer
         #endregion
         public Dictionary<string, string> Commands { get; set; }
         public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
+=======
+                if (connectionstring == string.Empty) throw new InvalidConnectionStringProvidedException($"'{connectionstring}' is not a valid connection string!");
+                Connection = new SQLiteConnection(connectionstring);
+            }
+        }
+        #endregion
+        public Dictionary<string, string> Commands { get; set; }
+>>>>>>> Still Implementing DAL.  Debugging init problems
         SQLiteCommand name_exists_command;
         SQLiteCommandBuilder commandbuilder;
         public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; set => commandbuilder = value; }
         public SQLiteConnection Connection { get; set; }
         public SQLiteDataAdapter Adapter { get; set; }
+<<<<<<< HEAD
         public string DatabaseFile { get; set; }        
 
+=======
+        public string DatabaseFile { get; set; }
+>>>>>>> Still Implementing DAL.  Debugging init problems
         public DBAccess(string database_file, Dictionary<string,string> commands, DBAccessEventHandlers handlers)
         {
             DatabaseFile = database_file;
@@ -87,6 +116,7 @@ namespace TimeTrackerDataAccessLayer
             VerifyExistsDataBase(DatabaseFile);
 
             Debug.Print(DatabaseFile);
+<<<<<<< HEAD
             if (Adapter == null)
             {
                 if (Connection == null)
@@ -107,6 +137,9 @@ namespace TimeTrackerDataAccessLayer
                     InsertCommand = initCmds.Commands[@"insert"]
                 };
             }
+=======
+
+>>>>>>> Still Implementing DAL.  Debugging init problems
             commandbuilder = new SQLiteCommandBuilder(Adapter);
         }
         private static void VerifyCreated(string directoryName)

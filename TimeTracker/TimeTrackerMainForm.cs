@@ -36,8 +36,12 @@ namespace TimeTracker
             {
                 { "update", Properties.Resources.update_command },
                 { "select", Properties.Resources.select_all_rows },
+<<<<<<< HEAD
                 { "delete", Properties.Resources.delete_command },
                 { "insert", Properties.Resources.insert_command }
+=======
+                { "delete", Properties.Resources.delete_command }
+>>>>>>> Still Implementing DAL.  Debugging init problems
             };
             //
             dal = new DBAccess(DataFile, commands, new DBAccessEventHandlers
@@ -46,18 +50,24 @@ namespace TimeTracker
                 CreateDBHandler = DataAccessLayer_NeedDatabaseCreateCommand,
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
+<<<<<<< HEAD
             //
             dal.FillDataTable(TimerDataSet.Tables["Timer"]);
+=======
+>>>>>>> Still Implementing DAL.  Debugging init problems
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
         {
+<<<<<<< HEAD
             TimerDataGridView.DataError += TimerDataGridView_DataError;
         }
 
         private void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
             
+=======
+>>>>>>> Still Implementing DAL.  Debugging init problems
         }
 
         private void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
