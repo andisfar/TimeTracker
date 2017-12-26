@@ -101,6 +101,15 @@ namespace TimeTracker
             #region bindingNavigatorSaveToDatabase Events
             bindingNavigatorSaveToDatabase.Click += BindingNavigatorSaveToDatabase_Click;
             #endregion
+            #region MainForm Events
+            FormClosing += TimeTrackerMainForm_FormClosing;
+            #endregion
+        }
+
+        private void TimeTrackerMainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _timers.Dispose();
+            SaveToDatabase();
         }
 
         private void TimeTrackerMainForm_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")

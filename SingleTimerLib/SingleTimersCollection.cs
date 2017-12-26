@@ -8,7 +8,7 @@ using static SingleTimerLib.SingleTimer;
 
 namespace SingleTimerLib
 {
-    public class SingleTimersCollection : IDictionary<int, SingleTimer>
+    public class SingleTimersCollection : IDictionary<int, SingleTimer>, IDisposable
     {
         readonly SingleTimerEventHandlers _eventHandlers;
 
@@ -134,6 +134,28 @@ namespace SingleTimerLib
         IEnumerator IEnumerable.GetEnumerator()
         {
             return timers.GetEnumerator();
+        }
+        private void StopAll()
+        {
+            foreach(SingleTimer t in timers.Values)
+            {
+                t.StopTimer();
+            }
+        }
+
+        private void DisposeAll()
+        {
+            foreach (SingleTimer t in timers.Values)
+            {
+                t.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            StopAll();
+            DisposeAll();
+            GC.SuppressFinalize(this);
         }
     }
 
