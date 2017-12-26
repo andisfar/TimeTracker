@@ -157,6 +157,10 @@
     <None Include="Resources\name_exists_command.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SingleTimerLib\SingleTimerLib.csproj">
+      <Project>{BFAE3F23-7238-44BC-8F81-BEE455C9501C}</Project>
+      <Name>SingleTimerLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TimeTrackerDataAccessLayer\TimeTrackerDataAccessLayer.csproj">
       <Project>{595181f9-f2f9-4d11-9916-55d1d2e8ef8c}</Project>
       <Name>TimeTrackerDataAccessLayer</Name>

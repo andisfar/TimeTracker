@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SingleTimerLib;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -56,6 +57,8 @@ namespace TimeTrackerDataAccessLayer
                 e.CreateDatabase.Connection = Connection = new SQLiteConnection(connectionstring);
             }
         }
+
+        public static void FillTimersCollection(ref SingleTimerLib.SingleTimersCollection timers, DataTable timer) => timers.AddRange(timer.Rows);
         #endregion
         #endregion
         #region FillDatabase
@@ -223,9 +226,27 @@ namespace TimeTrackerDataAccessLayer
 
     public static partial class Extentions
     {
-        public static int ToInt(this DataRow me)
+        public static void AddRange(this SingleTimersCollection me, DataRowCollection timersToAdd)
         {
-            return Int32.Parse(me.ToString());
+            foreach(DataRow timer_db in timersToAdd)
+            {
+                me.AddTimer(timer_db.KeyToInt(), timer_db.TimerName(), timer_db.ElapsedTimeOffset());
+            }
+        }
+
+        public static string ElapsedTimeOffset(this DataRow me)
+        {
+            return me[2].ToString();
+        }
+
+        public static string TimerName(this DataRow me)
+        {
+            return me[1].ToString();
+        }
+
+        public static int KeyToInt(this DataRow me)
+        {
+            return Int32.Parse(me[0].ToString());
         }
 
         public static int OriginalId(this DataRow me)

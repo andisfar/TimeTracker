@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SingleTimerLib;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -26,7 +27,8 @@ namespace TimeTracker
             get => commands;
             set => commands = value;
         }
-        public bool UserAddedRow { get; private set; }        
+        public bool UserAddedRow { get; private set; }
+        private SingleTimersCollection _timers = new SingleTimersCollection();
         private DBAccess dal;
         public TimeTrackerMainForm()
         {
@@ -51,6 +53,7 @@ namespace TimeTracker
             //
             dal.FillDataTable(Timer);
             ConnectionStatusButton.Image = ConnectionStateImageList.Images["Closed"];
+            DBAccess.FillTimersCollection(ref _timers, Timer);
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
