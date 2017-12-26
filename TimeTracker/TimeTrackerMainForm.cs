@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -25,7 +26,7 @@ namespace TimeTracker
             get => commands;
             set => commands = value;
         }
-
+        public bool UserAddedRow { get; private set; }        
         private DBAccess dal;
 
         public TimeTrackerMainForm()
@@ -49,7 +50,7 @@ namespace TimeTracker
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
             //
-            dal.FillDataTable(TimerDataSet.Tables[nameof(Timer)]);
+            dal.FillDataTable(Timer);
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
@@ -57,6 +58,8 @@ namespace TimeTracker
             #region TimerDataGridView Events
             TimerDataGridView.DataError += TimerDataGridView_DataError;
             TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
+            TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
+            TimerDataGridView.UserDeletingRow += TimerDataGridView_UserDeletingRow;
             #endregion
             #region dal CommandBuilder DataAdapter Events
             dal.TimerCommandBuilder.DataAdapter.FillError += DataAdapter_FillError;
@@ -66,6 +69,30 @@ namespace TimeTracker
             #region dal CommandBuilder DataAdapter InsertCommand Connection Events
             dal.TimerCommandBuilder.DataAdapter.InsertCommand.Connection.Update += InsertConnection_Update;
             #endregion
+            #region bindingNavigatorAddNewItem Events
+            bindingNavigatorAddNewItem.Click += BindingNavigatorAddNewItem_Click;
+            #endregion
+        }
+
+        private void TimerDataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Cells[0].EditedFormattedValue}");
+            int delete_index = Int32.Parse(e.Row.Cells[0].EditedFormattedValue.ToString());
+            var row = Timer.Rows.Find(delete_index);
+            Timer.Rows.Remove(row);
+            Timer.AcceptChanges();
+            Log_Message(Timer);
+        }
+
+        private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            UserAddedRow = true;
+            Log_Message(Timer);
+        }
+
+        private static void BindingNavigatorAddNewItem_Click(object sender, EventArgs e)
+        {
+            Log_Message("User CLicked Add Button!");
         }
 
         private static void InsertConnection_Update(object sender, System.Data.SQLite.UpdateEventArgs e)
@@ -75,9 +102,36 @@ namespace TimeTracker
 
         private void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.ColumnIndex == 1)
+            {
+                if (TimerDataGridView.Rows[e.RowIndex].Cells[2].EditedFormattedValue.ToString() == string.Empty)
+                {
+                    TimerDataGridView.Rows[e.RowIndex].Cells[2].Value = "00:00:00";
+                }
+            }
+            if(UserAddedRow)
+            {
+                var row = Timer.NewRow();
+                using (DataGridViewRow dvrow = TimerDataGridView.Rows[e.RowIndex])
+                {
+                    row[1] = dvrow.Cells[1].EditedFormattedValue;
+                    row[2] = dvrow.Cells[2].EditedFormattedValue;                    
+                }                
+                Timer.Rows.Add(row);
+                UserAddedRow = false;
+            }
             Log_Message($"(Row,\tColumn)");
             Log_Message($"({e.RowIndex},\t\t{e.ColumnIndex})");
             Log_Message($"Cell End Edit!");
+            Log_Message(Timer);
+        }
+
+        private static void Log_Message(DataTable dataTable)
+        {
+            foreach(DataRow row in dataTable.Rows)
+            {
+                Log_Message($"Id:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+            }
         }
 
         private static void DataAdapter_RowUpdating(object sender, System.Data.Common.RowUpdatingEventArgs e)
@@ -125,5 +179,9 @@ namespace TimeTracker
 
         private static void DataAccessLayer_NeedDatabaseCreateCommand(object sender, NeedDatabaseConnectionCommandEventArgs e) =>
             e.CreateDatabase = new System.Data.SQLite.SQLiteCommand(Properties.Resources.dbo_CreateTimer);
+    }
+
+    public static class Extentions
+    {
     }
 }
