@@ -163,11 +163,19 @@ namespace SingleTimerLib
     public class SingleTimerEventHandlers : EventArgs
     {
         public SingleTimer.SingleTimerElapsedTimeChanging ElapsedTimeChanging { get; set; }
+        public SingleTimer.SingleTimerNameChanging NameChaning { get; set; }
 
         internal bool IsNull()
         {
             if (ElapsedTimeChanging == null)
+            {
                 return true;
+            }
+
+            if (NameChaning ==  null)
+            {
+                return true;
+            }
             return false;
         }
     }

@@ -37,10 +37,11 @@ namespace TimeTracker
         public TimeTrackerMainForm()
         {
             InitializeComponent();
-             _timers = new SingleTimersCollection(new SingleTimerEventHandlers
-             {
-                 ElapsedTimeChanging = TimeTrackerMainForm_ElapsedTimeChanging
-             });
+            _timers = new SingleTimersCollection(new SingleTimerEventHandlers
+            {
+                ElapsedTimeChanging = TimeTrackerMainForm_ElapsedTimeChanging,
+                NameChaning = Timer_NameChanging
+            });
             var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default[@"DataFile"].ToString();
             var dataFileInfo = new FileInfo(DataFile);
             //
@@ -62,11 +63,6 @@ namespace TimeTracker
             dal.FillDataTable(Timer);
             ConnectionStatusButton.Image = ConnectionStateImageList.Images["Closed"];
             DBAccess.FillTimersCollection(ref _timers, Timer);
-            foreach(SingleTimer t in _timers.Values)
-            {
-                t.DebugPrint(InfoTypes.TimerEvents);
-                t.StartOrStop();
-            }
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
@@ -106,6 +102,40 @@ namespace TimeTracker
             #endregion
         }
 
+        private void Timer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
+        {
+            Log_Message($"{caller} says Timer with Elapsed Time Value {e.OldName}");
+            Log_Message($"{caller} says Timer with Elapsed Time Value {e.NewName}");
+            Log_Message($"{caller} says Timer with row index of {e.Timer.RowIndex}");
+            Log_Message($"{caller} says Timer with name of {e.Timer.CanonicalName}");
+            Log_Message($"{caller} says Timer with menu text {e.Timer.MenuText}");
+            e.Timer.DebugPrint(InfoTypes.TimerEvents);
+            UpdateDataGridViewRow(e);
+        }
+
+        private void UpdateDataGridViewRow(SingleTimerNameChangingEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<SingleTimerNameChangingEventArgs>(UpdateDataGridViewRow), e);
+                return;
+            }
+
+            foreach (DataGridViewRow r in TimerDataGridView.Rows)
+            {
+                if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
+                {
+                    if (r.Cells[1].EditedFormattedValue.ToString() != e.NewName)
+                    {
+                        r.Cells[1].Value = e.NewName;
+                    }
+                }
+            }
+            bindingNavigatorSaveToDatabase.PerformClick();
+            Log_Message($"{e.OldName} changed from {e.OldName}");
+            Application.DoEvents();
+        }
+
         private void TimeTrackerMainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             _timers.Dispose();
@@ -119,22 +149,22 @@ namespace TimeTracker
             Log_Message($"Timer with name of {e.Timer.CanonicalName}");
             Log_Message($"Timer with menu text {e.Timer.MenuText}");
             e.Timer.DebugPrint(InfoTypes.TimerEvents);
-            UpdateDataGridViewRow(e.Timer);            
+            UpdateDataGridViewRow(e);            
         }
 
-        private void UpdateDataGridViewRow(SingleTimer t)
+        private void UpdateDataGridViewRow(SingleTimerElapsedTimeChangingEventArgs e)
         {            
             if(InvokeRequired)
             {
-                Invoke(new Action<SingleTimer>(UpdateDataGridViewRow), t);
+                Invoke(new Action<SingleTimerElapsedTimeChangingEventArgs>(UpdateDataGridViewRow), e);
                 return;
             }
 
             foreach (DataGridViewRow r in TimerDataGridView.Rows)
             {
-                if (r.Cells[0].EditedFormattedValue.ToString() == t.RowIndex.ToString())
+                if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
                 {
-                    r.Cells[2].Value = t.RunningElapsedTime;
+                    r.Cells[2].Value = e.Timer.RunningElapsedTime;
                 }
             }
             bindingNavigatorSaveToDatabase.PerformClick();
