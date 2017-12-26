@@ -50,6 +50,7 @@ namespace TimeTracker
             });
             //
             dal.FillDataTable(Timer);
+            ConnectionStatusButton.Image = ConnectionStateImageList.Images["Closed"];
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
@@ -71,8 +72,11 @@ namespace TimeTracker
             dal.TimerCommandBuilder.DataAdapter.RowUpdated += DataAdapter_RowUpdated;
             dal.TimerCommandBuilder.DataAdapter.RowUpdating += DataAdapter_RowUpdating;
             #endregion
-            #region dal CommandBuilder DataAdapter InsertCommand Connection Events
-            dal.TimerCommandBuilder.DataAdapter.InsertCommand.Connection.Update += InsertConnection_Update;
+            #region dal CommandBuilder DataAdapter Connection Events
+            dal.TimerCommandBuilder.DataAdapter.InsertCommand.Connection.StateChange += Connection_StateChanged;
+            dal.TimerCommandBuilder.DataAdapter.UpdateCommand.Connection.StateChange += Connection_StateChanged;
+            dal.TimerCommandBuilder.DataAdapter.DeleteCommand.Connection.StateChange += Connection_StateChanged;
+            dal.TimerCommandBuilder.DataAdapter.SelectCommand.Connection.StateChange += Connection_StateChanged;
             #endregion
             #region bindingNavigatorAddNewItem Events
             bindingNavigatorAddNewItem.Click += BindingNavigatorAddNewItem_Click;
@@ -154,9 +158,30 @@ namespace TimeTracker
         {
             Log_Message("User CLicked Add Button!");
         }
-        private static void InsertConnection_Update(object sender, System.Data.SQLite.UpdateEventArgs e)
+        private void Connection_StateChanged(object sender, StateChangeEventArgs e)
         {
-            Log_Message(e.Event.ToString());
+            Log_Message($"Connection currently '{e.CurrentState.ToString()}'");
+            switch(e.CurrentState)
+            {
+                case ConnectionState.Connecting:
+                case ConnectionState.Executing:
+                case ConnectionState.Fetching:
+                case ConnectionState.Open:
+                    {
+                        ConnectionStatusButton.Image = ConnectionStateImageList.Images["Open"];
+                        break;                        
+                    }
+                case ConnectionState.Closed:
+                    {
+                        ConnectionStatusButton.Image = ConnectionStateImageList.Images["Closed"];
+                        break;
+                    }
+                default:
+                    {
+                        ConnectionStatusButton.Image = ConnectionStateImageList.Images["Broken"];
+                        break;
+                    }
+            }
         }
         private void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {

@@ -141,7 +141,7 @@ namespace TimeTrackerDataAccessLayer
                 }
                 if (row.RowState == DataRowState.Deleted)
                 {
-                    var id = new SQLiteParameter("@Id", row["Id",DataRowVersion.Original].ToInt());
+                    var id = new SQLiteParameter("@Id", row.OriginalId());
                     update.Parameters.Add(id);
                     delete.Open();
                     affected += delete.ExecuteNonQuery();
@@ -226,6 +226,11 @@ namespace TimeTrackerDataAccessLayer
         public static int ToInt(this DataRow me)
         {
             return Int32.Parse(me.ToString());
+        }
+
+        public static int OriginalId(this DataRow me)
+        {
+            return Int32.Parse(me["Id", DataRowVersion.Original].ToString());
         }
 
         public static void Open(this SQLiteCommand me)

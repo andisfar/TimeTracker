@@ -53,12 +53,18 @@
             this.bindingNavigatorMoveLastItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.bindingNavigatorSaveToDatabase = new System.Windows.Forms.ToolStripButton();
+            this.ConnectionStatusButton = new System.Windows.Forms.ToolStripButton();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.StatusTextLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.ConnectionStateImageList = new System.Windows.Forms.ImageList(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).BeginInit();
             this.TimerBN.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // TimerDataGridView
@@ -165,7 +171,8 @@
             this.bindingNavigatorSeparator2,
             this.bindingNavigatorAddNewItem,
             this.bindingNavigatorDeleteItem,
-            this.bindingNavigatorSaveToDatabase});
+            this.bindingNavigatorSaveToDatabase,
+            this.ConnectionStatusButton});
             this.TimerBN.Location = new System.Drawing.Point(0, 0);
             this.TimerBN.MoveFirstItem = this.bindingNavigatorMoveFirstItem;
             this.TimerBN.MoveLastItem = this.bindingNavigatorMoveLastItem;
@@ -272,11 +279,55 @@
             this.bindingNavigatorSaveToDatabase.Text = "Save To Database";
             this.bindingNavigatorSaveToDatabase.ToolTipText = "Save To Database";
             // 
+            // ConnectionStatusButton
+            // 
+            this.ConnectionStatusButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.ConnectionStatusButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.ConnectionStatusButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.ConnectionStatusButton.Image = ((System.Drawing.Image)(resources.GetObject("ConnectionStatusButton.Image")));
+            this.ConnectionStatusButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.ConnectionStatusButton.Name = "ConnectionStatusButton";
+            this.ConnectionStatusButton.Size = new System.Drawing.Size(23, 22);
+            this.ConnectionStatusButton.Visible = false;
+            // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.StatusLabel,
+            this.StatusTextLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 263);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(544, 22);
+            this.statusStrip1.TabIndex = 2;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // StatusLabel
+            // 
+            this.StatusLabel.Name = "StatusLabel";
+            this.StatusLabel.Size = new System.Drawing.Size(39, 17);
+            this.StatusLabel.Text = "Status";
+            // 
+            // StatusTextLabel
+            // 
+            this.StatusTextLabel.BorderStyle = System.Windows.Forms.Border3DStyle.Sunken;
+            this.StatusTextLabel.Name = "StatusTextLabel";
+            this.StatusTextLabel.Size = new System.Drawing.Size(490, 17);
+            this.StatusTextLabel.Spring = true;
+            // 
+            // ConnectionStateImageList
+            // 
+            this.ConnectionStateImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("ConnectionStateImageList.ImageStream")));
+            this.ConnectionStateImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.ConnectionStateImageList.Images.SetKeyName(0, "Broken");
+            this.ConnectionStateImageList.Images.SetKeyName(1, "Closed");
+            this.ConnectionStateImageList.Images.SetKeyName(2, "Open");
+            // 
             // TimeTrackerMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(544, 285);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.TimerDataGridView);
             this.Controls.Add(this.TimerBN);
             this.Name = "TimeTrackerMainForm";
@@ -288,6 +339,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).EndInit();
             this.TimerBN.ResumeLayout(false);
             this.TimerBN.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -318,6 +371,11 @@
         private System.Data.DataColumn Id;
         private System.Data.DataColumn TimerName;
         private System.Data.DataColumn Elapsed;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripButton ConnectionStatusButton;
+        private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel StatusTextLabel;
+        private System.Windows.Forms.ImageList ConnectionStateImageList;
     }
 }
 
