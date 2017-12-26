@@ -55,11 +55,17 @@ namespace TimeTracker
         }
         private void ConnectEventHandlers()
         {
+            #region Timer Data Table Events
+            Timer.RowDeleted += Timer_RowDeleted;
+            Timer.RowChanged += Timer_RowChanged;
+            Timer.TableNewRow += Timer_TableNewRow;
+            #endregion
             #region TimerDataGridView Events
             TimerDataGridView.DataError += TimerDataGridView_DataError;
             TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
             TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
             TimerDataGridView.UserDeletingRow += TimerDataGridView_UserDeletingRow;
+            TimerDataGridView.UserDeletedRow += TimerDataGridView_UserDeletedRow;
             #endregion
             #region dal CommandBuilder DataAdapter Events
             dal.TimerCommandBuilder.DataAdapter.FillError += DataAdapter_FillError;
@@ -71,17 +77,60 @@ namespace TimeTracker
             #endregion
             #region bindingNavigatorAddNewItem Events
             bindingNavigatorAddNewItem.Click += BindingNavigatorAddNewItem_Click;
+            bindingNavigatorDeleteItem.Click += BindingNavigatorDeleteItem_Click;
             #endregion
+        }
+
+        private void Timer_TableNewRow(object sender, DataTableNewRowEventArgs e)
+        {
+            Log_Message("TableNewRow");
+            Log_Message(Timer);
+            EnableSave();
+        }
+
+        private void EnableSave()
+        {
+            bindingNavigatorSaveToDatabase.Enabled = true;
+        }
+
+        private void Timer_RowChanged(object sender, DataRowChangeEventArgs e)
+        {
+            Log_Message("RowChanged");
+            Log_Message(Timer);
+            EnableSave();
+        }
+
+        private void Timer_RowDeleted(object sender, DataRowChangeEventArgs e)
+        {
+            Log_Message("RowDeleted");
+            Log_Message(Timer);
+            EnableSave();
+        }
+
+        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
+        {
+            Log_Message(Timer);
+        }
+
+        List<int> Deleted_Rows = new List<int>();
+        private void TimerDataGridView_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            foreach(int key in Deleted_Rows)
+            {
+                var row = Timer.Rows.Find(key);
+                if (row != null)
+                {
+                    row.Delete();
+                }
+            }
+            Log_Message(Timer);
+            Deleted_Rows.Clear();
         }
 
         private void TimerDataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Cells[0].EditedFormattedValue}");
-            int delete_index = Int32.Parse(e.Row.Cells[0].EditedFormattedValue.ToString());
-            var row = Timer.Rows.Find(delete_index);
-            Timer.Rows.Remove(row);
-            Timer.AcceptChanges();
-            Log_Message(Timer);
+            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Cells[0].ToInt()}");
+            Deleted_Rows.Add(e.Row.Cells[0].ToInt());
         }
 
         private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
@@ -119,6 +168,7 @@ namespace TimeTracker
                 }                
                 Timer.Rows.Add(row);
                 UserAddedRow = false;
+                TimerDataGridView.Refresh();
             }
             Log_Message($"(Row,\tColumn)");
             Log_Message($"({e.RowIndex},\t\t{e.ColumnIndex})");
@@ -130,7 +180,15 @@ namespace TimeTracker
         {
             foreach(DataRow row in dataTable.Rows)
             {
-                Log_Message($"Id:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+                try
+                {
+                    Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+                }
+                catch (DeletedRowInaccessibleException ex)
+                {
+                    Log_Message("Unable to log info about deleted row!");
+                    continue;
+                }
             }
         }
 
@@ -183,5 +241,14 @@ namespace TimeTracker
 
     public static class Extentions
     {
+        public static int ToInt(this DataGridViewCell me)
+        {
+            return Convert.ToInt32(me.EditedFormattedValue.ToString());
+        }
+
+        public static string ToString(this DataGridViewCell me)
+        {
+            return me.EditedFormattedValue.ToString();
+        }
     }
 }
