@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
@@ -25,7 +26,7 @@ namespace TimeTracker
             get => commands;
             set => commands = value;
         }
-
+        public bool UserAddedRow { get; private set; }        
         private DBAccess dal;
 
         public TimeTrackerMainForm()
@@ -49,16 +50,146 @@ namespace TimeTracker
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
             //
-            dal.FillDataTable(TimerDataSet.Tables[nameof(Timer)]);
+            dal.FillDataTable(Timer);
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
         {
+            #region Timer Data Table Events
+            Timer.RowDeleted += Timer_RowDeleted;
+            Timer.RowChanged += Timer_RowChanged;
+            Timer.TableNewRow += Timer_TableNewRow;
+            #endregion
+            #region TimerDataGridView Events
             TimerDataGridView.DataError += TimerDataGridView_DataError;
+            TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
+            TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
+            TimerDataGridView.UserDeletingRow += TimerDataGridView_UserDeletingRow;
+            TimerDataGridView.UserDeletedRow += TimerDataGridView_UserDeletedRow;
+            #endregion
+            #region dal CommandBuilder DataAdapter Events
             dal.TimerCommandBuilder.DataAdapter.FillError += DataAdapter_FillError;
             dal.TimerCommandBuilder.DataAdapter.RowUpdated += DataAdapter_RowUpdated;
             dal.TimerCommandBuilder.DataAdapter.RowUpdating += DataAdapter_RowUpdating;
+            #endregion
+            #region dal CommandBuilder DataAdapter InsertCommand Connection Events
+            dal.TimerCommandBuilder.DataAdapter.InsertCommand.Connection.Update += InsertConnection_Update;
+            #endregion
+            #region bindingNavigatorAddNewItem Events
+            bindingNavigatorAddNewItem.Click += BindingNavigatorAddNewItem_Click;
+            bindingNavigatorDeleteItem.Click += BindingNavigatorDeleteItem_Click;
+            #endregion
+        }
 
+        private void Timer_TableNewRow(object sender, DataTableNewRowEventArgs e)
+        {
+            Log_Message("TableNewRow");
+            Log_Message(Timer);
+            EnableSave();
+        }
+
+        private void EnableSave()
+        {
+            bindingNavigatorSaveToDatabase.Enabled = true;
+        }
+
+        private void Timer_RowChanged(object sender, DataRowChangeEventArgs e)
+        {
+            Log_Message("RowChanged");
+            Log_Message(Timer);
+            EnableSave();
+        }
+
+        private void Timer_RowDeleted(object sender, DataRowChangeEventArgs e)
+        {
+            Log_Message("RowDeleted");
+            Log_Message(Timer);
+            EnableSave();
+        }
+
+        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
+        {
+            Log_Message(Timer);
+        }
+
+        List<int> Deleted_Rows = new List<int>();
+        private void TimerDataGridView_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            foreach(int key in Deleted_Rows)
+            {
+                var row = Timer.Rows.Find(key);
+                if (row != null)
+                {
+                    row.Delete();
+                }
+            }
+            Log_Message(Timer);
+            Deleted_Rows.Clear();
+        }
+
+        private void TimerDataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Cells[0].ToInt()}");
+            Deleted_Rows.Add(e.Row.Cells[0].ToInt());
+        }
+
+        private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            UserAddedRow = true;
+            Log_Message(Timer);
+        }
+
+        private static void BindingNavigatorAddNewItem_Click(object sender, EventArgs e)
+        {
+            Log_Message("User CLicked Add Button!");
+        }
+
+        private static void InsertConnection_Update(object sender, System.Data.SQLite.UpdateEventArgs e)
+        {
+            Log_Message(e.Event.ToString());
+        }
+
+        private void TimerDataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 1)
+            {
+                if (TimerDataGridView.Rows[e.RowIndex].Cells[2].EditedFormattedValue.ToString() == string.Empty)
+                {
+                    TimerDataGridView.Rows[e.RowIndex].Cells[2].Value = "00:00:00";
+                }
+            }
+            if(UserAddedRow)
+            {
+                var row = Timer.NewRow();
+                using (DataGridViewRow dvrow = TimerDataGridView.Rows[e.RowIndex])
+                {
+                    row[1] = dvrow.Cells[1].EditedFormattedValue;
+                    row[2] = dvrow.Cells[2].EditedFormattedValue;                    
+                }                
+                Timer.Rows.Add(row);
+                UserAddedRow = false;
+                TimerDataGridView.Refresh();
+            }
+            Log_Message($"(Row,\tColumn)");
+            Log_Message($"({e.RowIndex},\t\t{e.ColumnIndex})");
+            Log_Message($"Cell End Edit!");
+            Log_Message(Timer);
+        }
+
+        private static void Log_Message(DataTable dataTable)
+        {
+            foreach(DataRow row in dataTable.Rows)
+            {
+                try
+                {
+                    Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+                }
+                catch (DeletedRowInaccessibleException ex)
+                {
+                    Log_Message("Unable to log info about deleted row!");
+                    continue;
+                }
+            }
         }
 
         private static void DataAdapter_RowUpdating(object sender, System.Data.Common.RowUpdatingEventArgs e)
@@ -91,7 +222,7 @@ namespace TimeTracker
 
         private static void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            
+            Log_Message($"{e.Exception.Message} : Number {e.Exception.HResult}");   
         }
 
         private static void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
@@ -106,5 +237,18 @@ namespace TimeTracker
 
         private static void DataAccessLayer_NeedDatabaseCreateCommand(object sender, NeedDatabaseConnectionCommandEventArgs e) =>
             e.CreateDatabase = new System.Data.SQLite.SQLiteCommand(Properties.Resources.dbo_CreateTimer);
+    }
+
+    public static class Extentions
+    {
+        public static int ToInt(this DataGridViewCell me)
+        {
+            return Convert.ToInt32(me.EditedFormattedValue.ToString());
+        }
+
+        public static string ToString(this DataGridViewCell me)
+        {
+            return me.EditedFormattedValue.ToString();
+        }
     }
 }

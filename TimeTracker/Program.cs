@@ -16,7 +16,10 @@ namespace TimeTracker
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TimeTrackerMainForm());
+            using (var timeTrackerMainForm = new TimeTrackerMainForm())
+            {
+                Application.Run(timeTrackerMainForm);
+            }
         }
     }
 }
