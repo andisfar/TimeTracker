@@ -108,6 +108,56 @@ namespace TimeTrackerDataAccessLayer
             }
             commandbuilder = new SQLiteCommandBuilder(Adapter);
         }
+
+        public void SaveToDataBase(DataTable timer)
+        {
+            var update = TimerCommandBuilder.DataAdapter.UpdateCommand;
+            var insert = TimerCommandBuilder.DataAdapter.InsertCommand;
+            var delete = TimerCommandBuilder.DataAdapter.DeleteCommand;
+
+            var affected = 0;
+            foreach (DataRow row in timer.Rows)
+            {
+                if(row.RowState == DataRowState.Added)
+                {
+                    var name = new SQLiteParameter("@Name", row[1]);
+                    var elapsed = new SQLiteParameter("@Elapsed", row[2]);
+                    var paramList = new List<SQLiteParameter> { name, elapsed };
+                    insert.Parameters.AddRange(paramList.ToArray());
+                    insert.Open();
+                    affected += insert.ExecuteNonQuery();
+                    insert.Close();
+                }
+                if (row.RowState == DataRowState.Modified)
+                {
+                    var id = new SQLiteParameter("@Id", row[0]);
+                    var name = new SQLiteParameter("@Name", row[1]);
+                    var elapsed = new SQLiteParameter("@Elapsed", row[2]);
+                    var paramList = new List<SQLiteParameter> { id, name, elapsed };
+                    update.Parameters.AddRange(paramList.ToArray());
+                    update.Open();
+                    affected += update.ExecuteNonQuery();
+                    update.Close();
+                }
+                if (row.RowState == DataRowState.Deleted)
+                {
+                    var id = new SQLiteParameter("@Id", row["Id",DataRowVersion.Original].ToInt());
+                    update.Parameters.Add(id);
+                    delete.Open();
+                    affected += delete.ExecuteNonQuery();
+                    delete.Close();
+                }
+            }
+            Log_Message($"{affected} rows affected!");
+            timer.AcceptChanges();
+            TimerCommandBuilder.DataAdapter.Update(timer);
+        }
+
+        private static void Log_Message(string message)
+        {
+            Debug.Print(message);
+        }
+
         private static void VerifyCreated(string directoryName)
         {
             if (Directory.Exists(directoryName)) return;
@@ -170,4 +220,22 @@ namespace TimeTrackerDataAccessLayer
         public NeedDatabaseCreateCommandHandler CreateDBHandler { get; set; }
     }
     #endregion
+
+    public static partial class Extentions
+    {
+        public static int ToInt(this DataRow me)
+        {
+            return Int32.Parse(me.ToString());
+        }
+
+        public static void Open(this SQLiteCommand me)
+        {
+            me.Connection.Open();
+        }
+
+        public static void Close(this SQLiteCommand me)
+        {
+            me.Connection.Close();
+        }
+    }
 }

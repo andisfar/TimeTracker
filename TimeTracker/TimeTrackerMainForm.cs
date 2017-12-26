@@ -78,7 +78,28 @@ namespace TimeTracker
             bindingNavigatorAddNewItem.Click += BindingNavigatorAddNewItem_Click;
             bindingNavigatorDeleteItem.Click += BindingNavigatorDeleteItem_Click;
             #endregion
+            #region bindingNavigatorSaveToDatabase Events
+            bindingNavigatorSaveToDatabase.Click += BindingNavigatorSaveToDatabase_Click;
+            #endregion
         }
+
+        private void BindingNavigatorSaveToDatabase_Click(object sender, EventArgs e)
+        {
+            SaveToDatabase();
+            Log_Message(Timer);
+        }
+
+        private void SaveToDatabase()
+        {            
+            dal.SaveToDataBase(Timer);
+            DisableSave();
+        }
+
+        private void DisableSave()
+        {
+            bindingNavigatorSaveToDatabase.Enabled = false;
+        }
+
         private void Timer_TableNewRow(object sender, DataTableNewRowEventArgs e)
         {
             Log_Message("TableNewRow");

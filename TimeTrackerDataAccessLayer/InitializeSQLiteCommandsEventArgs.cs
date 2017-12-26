@@ -35,7 +35,7 @@ namespace TimeTrackerDataAccessLayer
         }
     }
 
-    public static class Extentions
+    public static partial class Extentions
     {
         public static void AddRange(this Dictionary<string, SQLiteCommand> me, Dictionary<string, string> commands, SQLiteConnection connection)
         {
