@@ -1,10 +1,12 @@
-﻿using System;
+﻿using SingleTimerLib;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using TimeTrackerDataAccessLayer;
+using static SingleTimerLib.SingleTimer;
 
 namespace TimeTracker
 {
@@ -26,11 +28,20 @@ namespace TimeTracker
             get => commands;
             set => commands = value;
         }
-        public bool UserAddedRow { get; private set; }        
-        private DBAccess dal;
+        public bool UserAddedRow { get; private set; }
+
+        public List<int> Deleted_Rows => _deleted_Rows;
+
+        private readonly SingleTimersCollection _timers;
+        private readonly DBAccess dal;
         public TimeTrackerMainForm()
         {
             InitializeComponent();
+            _timers = new SingleTimersCollection(new SingleTimerEventHandlers
+            {
+                ElapsedTimeChanging = TimeTrackerMainForm_ElapsedTimeChanging,
+                NameChaning = Timer_NameChanging
+            });
             var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default[@"DataFile"].ToString();
             var dataFileInfo = new FileInfo(DataFile);
             //
@@ -51,6 +62,7 @@ namespace TimeTracker
             //
             dal.FillDataTable(Timer);
             ConnectionStatusButton.Image = ConnectionStateImageList.Images["Closed"];
+            DBAccess.FillTimersCollection(ref _timers, Timer);
             ConnectEventHandlers();
         }
         private void ConnectEventHandlers()
@@ -85,6 +97,83 @@ namespace TimeTracker
             #region bindingNavigatorSaveToDatabase Events
             bindingNavigatorSaveToDatabase.Click += BindingNavigatorSaveToDatabase_Click;
             #endregion
+            #region MainForm Events
+            FormClosing += TimeTrackerMainForm_FormClosing;
+            #endregion
+        }
+
+        private void Timer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
+        {
+            Log_Message($"{caller} says Timer with Elapsed Time Value {e.OldName}");
+            Log_Message($"{caller} says Timer with Elapsed Time Value {e.NewName}");
+            Log_Message($"{caller} says Timer with row index of {e.Timer.RowIndex}");
+            Log_Message($"{caller} says Timer with name of {e.Timer.CanonicalName}");
+            Log_Message($"{caller} says Timer with menu text {e.Timer.MenuText}");
+            e.Timer.DebugPrint(InfoTypes.TimerEvents);
+            UpdateDataGridViewRow(e);
+        }
+
+        private void UpdateDataGridViewRow(SingleTimerNameChangingEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<SingleTimerNameChangingEventArgs>(UpdateDataGridViewRow), e);
+                return;
+            }
+
+            foreach (DataGridViewRow r in TimerDataGridView.Rows)
+            {
+                if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
+                {
+                    if (r.Cells[1].EditedFormattedValue.ToString() != e.NewName)
+                    {
+                        r.Cells[1].Value = e.NewName;
+                    }
+                }
+            }
+            bindingNavigatorSaveToDatabase.PerformClick();
+            Log_Message($"{e.OldName} changed from {e.OldName}");
+            Application.DoEvents();
+        }
+
+        private void TimeTrackerMainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _timers.Dispose();
+            SaveToDatabase();
+        }
+
+        private void TimeTrackerMainForm_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
+        {
+            Log_Message($"Timer with Elapsed Time Value {e.ElapsedTime}");
+            Log_Message($"Timer with row index of {e.Timer.RowIndex}");
+            Log_Message($"Timer with name of {e.Timer.CanonicalName}");
+            Log_Message($"Timer with menu text {e.Timer.MenuText}");
+            e.Timer.DebugPrint(InfoTypes.TimerEvents);
+            UpdateDataGridViewRow(e);            
+        }
+
+        private void UpdateDataGridViewRow(SingleTimerElapsedTimeChangingEventArgs e)
+        {            
+            if(InvokeRequired)
+            {
+                Invoke(new Action<SingleTimerElapsedTimeChangingEventArgs>(UpdateDataGridViewRow), e);
+                return;
+            }
+
+            foreach (DataGridViewRow r in TimerDataGridView.Rows)
+            {
+                if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
+                {
+                    r.Cells[2].Value = e.Timer.RunningElapsedTime;
+                }
+            }
+            bindingNavigatorSaveToDatabase.PerformClick();
+            Application.DoEvents();
+        }
+
+        private static void Log_Message(DataRow row)
+        {
+            Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
         }
 
         private void BindingNavigatorSaveToDatabase_Click(object sender, EventArgs e)
@@ -94,7 +183,7 @@ namespace TimeTracker
         }
 
         private void SaveToDatabase()
-        {            
+        {
             dal.SaveToDataBase(Timer);
             DisableSave();
         }
@@ -112,6 +201,12 @@ namespace TimeTracker
         }
         private void EnableSave()
         {
+            if(this.InvokeRequired)
+            {
+                this.Invoke(new Action(EnableSave));
+                Log_Message($"Invoke from owning thread!");
+                return;
+            }
             bindingNavigatorSaveToDatabase.Enabled = true;
         }
         private void Timer_RowChanged(object sender, DataRowChangeEventArgs e)
@@ -126,11 +221,8 @@ namespace TimeTracker
             Log_Message(Timer);
             EnableSave();
         }
-        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
-        {
-            Log_Message(Timer);
-        }
-        List<int> Deleted_Rows = new List<int>();
+        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e) => Log_Message(Timer);
+        readonly List<int> _deleted_Rows = new List<int>();
         private void TimerDataGridView_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
         {
             foreach(int key in Deleted_Rows)
@@ -146,8 +238,14 @@ namespace TimeTracker
         }
         private void TimerDataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
-            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Cells[0].ToInt()}");
-            Deleted_Rows.Add(e.Row.Cells[0].ToInt());
+            if(this.InvokeRequired)
+            {
+                this.Invoke(new Action<object, DataGridViewRowCancelEventArgs>(TimerDataGridView_UserDeletingRow), sender, e);
+                Log_Message("Invoking on owning thread!");
+                return;
+            }
+            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Key()}");
+            Deleted_Rows.Add(e.Row.Key());
         }
         private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
         {
@@ -169,7 +267,7 @@ namespace TimeTracker
                 case ConnectionState.Open:
                     {
                         ConnectionStatusButton.Image = ConnectionStateImageList.Images["Open"];
-                        break;                        
+                        break;
                     }
                 case ConnectionState.Closed:
                     {
@@ -198,8 +296,8 @@ namespace TimeTracker
                 using (DataGridViewRow dvrow = TimerDataGridView.Rows[e.RowIndex])
                 {
                     row[1] = dvrow.Cells[1].EditedFormattedValue;
-                    row[2] = dvrow.Cells[2].EditedFormattedValue;                    
-                }                
+                    row[2] = dvrow.Cells[2].EditedFormattedValue;
+                }
                 Timer.Rows.Add(row);
                 UserAddedRow = false;
                 TimerDataGridView.Refresh();
@@ -215,7 +313,7 @@ namespace TimeTracker
             {
                 try
                 {
-                    Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+                    Log_Message(row);
                 }
                 catch (DeletedRowInaccessibleException ex)
                 {
@@ -249,7 +347,7 @@ namespace TimeTracker
         }
         private static void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            Log_Message($"{e.Exception.Message} : Number {e.Exception.HResult}");   
+            Log_Message($"{e.Exception.Message} : Number {e.Exception.HResult}");
         }
         private static void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
         {
@@ -264,9 +362,13 @@ namespace TimeTracker
     }
     public static class Extentions
     {
-        public static int ToInt(this DataGridViewCell me)
+        public static void SetTimerElapsedTime(this DataGridViewRow me, string RunningElapsedTime)
         {
-            return Convert.ToInt32(me.EditedFormattedValue.ToString());
+            me.Cells[2].Value = RunningElapsedTime;
+        }
+        public static int Key(this DataGridViewRow me)
+        {
+            return Convert.ToInt32(me.Cells[0].EditedFormattedValue.ToString());
         }
         public static string ToString(this DataGridViewCell me)
         {

@@ -1,0 +1,424 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
+
+namespace SingleTimerLib
+{
+    public enum InfoTypes
+    {
+        Default,
+        TimerEvents
+    }
+
+    public enum TimerStates
+    {
+        Running,
+        Stopped
+    }
+
+    public class SingleTimer : INotifyPropertyChanged, IDisposable
+    {
+        public delegate void TimerResetHandler(object sender, SingleTimerLibEventArgs e);
+
+        public event TimerResetHandler TimerReset;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public delegate void SingleTimerChangedHandler(object sender, SingleTimerLibEventArgs e);
+
+        public delegate void SingleTimerNameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller="");
+        public event SingleTimerNameChanging NameChanging;
+
+        public delegate void SingleTimerElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "");
+        public event SingleTimerElapsedTimeChanging ElapsedTimeChanging;
+
+        public event SingleTimerChangedHandler SingleTimerChanged;
+
+        private long _running_hours;
+        private long _running_minutes;
+        private long _running_seconds;
+
+        private long _hours_offset;
+        private long _minutes_offset;
+        private long _seconds_offset;
+
+        private Int32 _rowIndex;
+        public Int32 RowIndex { get => _rowIndex; set { _rowIndex = value; OnPropertyChangedEventHandler(); } }
+
+        private System.Timers.Timer heartBeat;
+        private Stopwatch stopWatch;
+
+        public Delegate[] @ElapsedTimeChangingInvocationList
+        {
+            get
+            {
+                MulticastDelegate m = (MulticastDelegate)ElapsedTimeChanging;
+                return m?.GetInvocationList();
+            }
+        }
+
+        public Delegate[] @NameChangingInvocationList
+        {
+            get
+            {
+                MulticastDelegate m = (MulticastDelegate)this.NameChanging;
+                return m?.GetInvocationList();
+            }
+        }
+
+        public Delegate[] @TimerResetInvocationList
+        {
+            get
+            {
+
+                MulticastDelegate m = (MulticastDelegate)this.TimerReset;
+                return m?.GetInvocationList();
+            }
+        }
+
+        public void OnElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e)
+        {
+            ElapsedTimeChanging?.Invoke(this, e);
+        }
+
+        private void OnNameChanging(object sender, SingleTimerNameChangingEventArgs e)
+        {
+            NameChanging?.Invoke(sender, e);
+        }
+
+        private void OnResetTimer()
+        {
+            TimerReset?.Invoke(this, new SingleTimerLibEventArgs(this));
+        }
+
+        private void OnPropertyChangedEventHandler([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            SingleTimerChanged?.Invoke(this, new SingleTimerLibEventArgs(this));
+        }
+
+        public SingleTimer(Int32 rowIndex, string name)
+        {
+            _name = name;
+            _rowIndex = rowIndex;
+            FinishInit("00:00:00");
+        }
+
+        public SingleTimer(Int32 rowIndex, string name, string elapsedTimeOffset, SingleTimerElapsedTimeChanging elapsedTimeChangingHandler)
+        {
+            _name = name;
+            _rowIndex = rowIndex;
+            ElapsedTimeChanging += elapsedTimeChangingHandler;
+            FinishInit(elapsedTimeOffset);
+        }
+
+        private void FinishInit(string elapsedTimeOffset)
+        {
+            OnPropertyChangedEventHandler(nameof(RowIndex));
+            OnPropertyChangedEventHandler(nameof(Name));
+            heartBeat = new System.Timers.Timer();
+            stopWatch = new Stopwatch();
+
+            heartBeat.Interval = 1000;
+            heartBeat.Enabled = false;
+            heartBeat.Elapsed += HeartBeat_Elapsed;
+            stopWatch = new Stopwatch();
+            ElapsedTimeOffset = elapsedTimeOffset;
+            IncrementTime();
+            SetElapsedTimeLabel();
+        }
+
+        private void SingleTimerEditorForm_QueryTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e)
+        {
+            e.Timer = this;
+        }
+
+        public SingleTimer Instance { get => this; }
+
+        private void SetElapsedTimeLabel()
+        {
+            OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
+            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
+        }
+
+        private void IncrementTime()
+        {
+            TimeSpan runningTime = new TimeSpan((int)Hours_offset, (int)Minutes_offset, (int)Seconds_offset);
+            runningTime += stopWatch.Elapsed;
+            Running_seconds = runningTime.Seconds;
+            Running_minutes = runningTime.Minutes;
+            Running_hours = runningTime.Hours;
+        }
+
+        private string ElapsedTimeOffset
+        {
+            get
+            {
+                return $"{Hours_offset:00}:{Minutes_offset:00}:{Seconds_offset:00}";
+            }
+
+            set
+            {
+                if (value == string.Empty)
+                {
+                    Hours_offset = 0;
+                    Minutes_offset = 0;
+                    Seconds_offset = 0;
+                }
+                else
+                {
+                    string[] elapsedTime = value.Split(':');
+                    Hours_offset = Int32.Parse(elapsedTime[0]);
+                    Minutes_offset = Int32.Parse(elapsedTime[1]);
+                    Seconds_offset = Int32.Parse(elapsedTime[2]);
+                }
+            }
+        }
+
+        internal static string BlankTimerValue() => $"{"00"}:{"00"}:{"00"}";
+
+        public void StartOrStop()
+        {
+            if (IsRunning)
+                StopTimer();
+            else
+                StartTimer();
+        }
+
+        private void HeartBeat_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            heartBeat.Enabled = false;
+            HandleTimerElapsed();
+            heartBeat.Enabled = true;
+        }
+
+        public void HandleTimerElapsed()
+        {
+            IncrementTime();
+            SetElapsedTimeLabel();
+        }
+
+        private string _name;
+
+        public string Name
+        {
+            get { return IsRunning ? _name + "*" : _name; }
+            set { OnNameChanging(this, new SingleTimerNameChangingEventArgs(CanonicalName, value, this)); _name = value; OnPropertyChangedEventHandler(); }
+        }
+
+        public string RunningElapsedTime => $"{Running_hours:00}:{Running_minutes:00}:{Running_seconds:00}";
+
+        public bool IsRunning
+        {
+            get { return stopWatch.IsRunning; }
+        }
+
+        public string CanonicalName => Name.Trim('*');
+
+        public string MenuText { get => string.Format(CanonicalName + "-[{0}]",RunningElapsedTime); }
+
+        public void SetElapsedTime(string runningElapsedTime)
+        {
+           TimeSpan newTime = new TimeSpan(ParseHours(runningElapsedTime)[0], ParseHours(runningElapsedTime)[1], ParseHours(runningElapsedTime)[2]);
+            Running_hours = newTime.Hours;
+            Running_minutes = newTime.Minutes;
+            Running_seconds = newTime.Seconds;
+            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
+        }
+
+        private int[] ParseHours(string runningElapsedTime)
+        {
+            List<int> retInts = new List<int>{0,0,0};
+            string[] intStr = runningElapsedTime.Split(':');
+            retInts[0] = Int32.Parse(intStr[0]);
+            retInts[1] = Int32.Parse(intStr[1]);
+            retInts[2] = Int32.Parse(intStr[2]);
+            return retInts.ToArray();
+        }
+
+        public void ResetTimer()
+        {
+            Hours_offset = 0;
+            Minutes_offset = 0;
+            Seconds_offset = 0;
+
+            if (IsRunning)
+            {
+                stopWatch.Restart();
+            }
+            else
+            {
+                stopWatch.Reset();
+            }
+
+            IncrementTime();
+            SetElapsedTimeLabel();
+            OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
+            OnResetTimer();
+        }
+
+        public void DebugPrint(InfoTypes showMe = InfoTypes.Default)
+        {
+            switch (showMe)
+            {
+                case InfoTypes.TimerEvents:
+                    {
+                        DebugPrint($"Name  = {nameof(ElapsedTimeChanging)}");
+                        try
+                        {
+                            foreach (Delegate @d in ElapsedTimeChangingInvocationList)
+                            {
+                                DebugPrint($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            DebugPrint($"Value = {"Not Set"}");
+                        }
+
+                        DebugPrint($"Name  = {nameof(NameChanging)}");
+                        try
+                        {
+                            foreach (Delegate @d in NameChangingInvocationList)
+                            {
+                                DebugPrint($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            DebugPrint($"Value = {"Not Set"}");
+                        }
+
+                        DebugPrint($"Name  = {nameof(TimerReset)}");
+                        try
+                        {
+                            foreach (Delegate @d in TimerResetInvocationList)
+                            {
+                                DebugPrint($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
+                            }
+                        }
+                        catch (NullReferenceException)
+                        {
+                            DebugPrint($"Value = {"Not Set"}");
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        DebugPrint($"Timer Row Index: {RowIndex}, Timer State: {TimerState.ToString()}");
+                        break;
+                    }
+            }
+        }
+
+        public TimerStates TimerState { get => stopWatch.IsRunning ? TimerStates.Running : TimerStates.Stopped; }
+        public long Running_hours { get => _running_hours; set => _running_hours = value; }
+        public long Running_minutes { get => _running_minutes; set => _running_minutes = value; }
+        public long Running_seconds { get => _running_seconds; set => _running_seconds = value; }
+        public long Hours_offset { get => _hours_offset; set => _hours_offset = value; }
+        public long Minutes_offset { get => _minutes_offset; set => _minutes_offset = value; }
+        public long Seconds_offset { get => _seconds_offset; set => _seconds_offset = value; }
+
+        public void StopTimer()
+        {
+            if (stopWatch.IsRunning)
+            {
+                stopWatch.Stop();
+                heartBeat.Enabled = false;
+            }
+            DebugPrint($"'{CanonicalName}' is now stopped!");
+            OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
+            OnPropertyChangedEventHandler(nameof(IsRunning));
+        }
+
+        public void StartTimer()
+        {
+            if (!stopWatch.IsRunning)
+            {
+                stopWatch.Start();
+                heartBeat.Enabled = true;
+            }
+            DebugPrint($"'{CanonicalName}' is now running!");
+            DebugPrint(InfoTypes.TimerEvents);
+            OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
+            OnPropertyChangedEventHandler(nameof(IsRunning));
+            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                //release any native resources here
+            }
+            StopTimer();
+            heartBeat.Dispose();
+        }
+
+        public void Dispose()
+        {
+            DebugPrint($"Timer '{CanonicalName}' is being disposed!");
+            Dispose(true);
+            GC.SuppressFinalize(this);
+            return;
+        }
+
+        public void ReNameTimer(string name)
+        {
+            Name = name; ;
+        }
+
+        private void DebugPrint(string message, [CallerMemberName] string caller = "")
+        {
+            var messageWithTimeStamp = $"[{DateTime.Now.ToString(@"HH:mm:ss:fff")}]\t{caller} says {message}";
+            Debug.Print(messageWithTimeStamp);
+        }
+    }
+
+    public class SingleTimerElapsedTimeChangingEventArgs : EventArgs
+    {
+        private readonly SingleTimer _t;
+        public SingleTimer Timer { get => _t; }
+
+        private readonly string _elapsedTime = string.Empty;
+        public string ElapsedTime { get => _elapsedTime; }
+
+        public SingleTimerElapsedTimeChangingEventArgs(string elapsedTime, SingleTimer t, [CallerMemberName] string caller = "")
+        {
+            _t = t;
+            _elapsedTime = elapsedTime;
+        }
+    }
+
+    public class SingleTimerNameChangingEventArgs : EventArgs
+    {
+        private readonly string _oldName = string.Empty;
+        private readonly string _newName = string.Empty;
+
+        public string OldName { get => _oldName; }
+        public string NewName { get => _newName; }
+        public SingleTimer Timer { get; private set; }
+
+        public SingleTimerNameChangingEventArgs(string oldName, string newName, SingleTimer t, [CallerMemberName] string caller = "")
+        {
+            _oldName = oldName;
+            _newName = newName;
+            Timer = t;
+        }
+    }
+
+    public class SingleTimerLibEventArgs : EventArgs
+    {
+        private readonly SingleTimer _t;
+        public SingleTimer Timer { get => _t; }
+
+        public SingleTimerLibEventArgs(SingleTimer t)
+        {
+            _t = t;
+        }
+    }
+}
