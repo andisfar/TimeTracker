@@ -65,7 +65,7 @@ namespace SingleTimerLib
                 TimerElapsedTimeTextBox.Invoke(new Action<string>(ThreadSafeUpdateOfTimerElapsedTime), runningElapsedTime);
                 return;
             }
-            TimerElapsedTimeTextBox.Text = editActions.Contains(EditActions.ResetElapsedTimer)? Timer.BlankTimerValue() : runningElapsedTime;
+            TimerElapsedTimeTextBox.Text = editActions.Contains(EditActions.ResetElapsedTimer)? SingleTimer.BlankTimerValue() : runningElapsedTime;
         }
 
         private void ThreadSafeUpdateTimerName(string canonicalName)
@@ -132,7 +132,7 @@ namespace SingleTimerLib
 
         private void ResetTimerbutton_Click(object sender, EventArgs e)
         {
-            TimerElapsedTimeTextBox.Text = Timer.BlankTimerValue();
+            TimerElapsedTimeTextBox.Text = SingleTimer.BlankTimerValue();
             Application.DoEvents();
             if(!editActions.Contains(EditActions.ResetElapsedTimer))
                 editActions.Add(EditActions.ResetElapsedTimer);

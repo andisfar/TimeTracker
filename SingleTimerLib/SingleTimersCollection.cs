@@ -4,12 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static SingleTimerLib.SingleTimer;
 
 namespace SingleTimerLib
 {
     public class SingleTimersCollection : IDictionary<int, SingleTimer>
     {
-        private Dictionary<int, SingleTimer> timers = new Dictionary<int, SingleTimer>();
+        readonly SingleTimerEventHandlers _eventHandlers;
+
+        public SingleTimerEventHandlers EventHandlers {get=>_eventHandlers;}
+        public SingleTimersCollection(SingleTimerEventHandlers eventHandlers)
+        {
+            if (eventHandlers.IsNull()) throw new ArgumentNullException(@"Must have valid evnet handlers!");
+            _eventHandlers = eventHandlers;
+        }
+        private readonly Dictionary<int, SingleTimer> timers = new Dictionary<int, SingleTimer>();
 
         public Dictionary<int, SingleTimer> Timers
         {
@@ -27,7 +36,7 @@ namespace SingleTimerLib
             {
                 timers[key] = value;
             }
-        }       
+        }
 
         public int Count
         {
@@ -61,7 +70,7 @@ namespace SingleTimerLib
             }
         }
 
-        private bool _preserveTimers = false;
+        private bool _preserveTimers;
         public bool PreserveTimers { get=>_preserveTimers; set => _preserveTimers = value; }
 
         public void Add(KeyValuePair<int, SingleTimer> item)
@@ -71,7 +80,7 @@ namespace SingleTimerLib
 
         public SingleTimerLib.SingleTimer AddTimer(int key, string canonicalNmae, string elapsedTimeOffset)
         {
-            Add(key, new SingleTimer(key, canonicalNmae, elapsedTimeOffset));
+            Add(key, new SingleTimer(key, canonicalNmae, elapsedTimeOffset, _eventHandlers.ElapsedTimeChanging));
             return this[key];
         }
 
@@ -97,7 +106,7 @@ namespace SingleTimerLib
 
         public void CopyTo(KeyValuePair<int, SingleTimer>[] array, int arrayIndex)
         {
-            KeyValuePair<int, SingleTimer> item = (KeyValuePair<int, SingleTimer>)timers.ToArray()[arrayIndex];
+            var item = (KeyValuePair<int, SingleTimer>)timers.ToArray()[arrayIndex];
             array[arrayIndex] = item;
         }
 
@@ -127,4 +136,18 @@ namespace SingleTimerLib
             return timers.GetEnumerator();
         }
     }
+
+    #region EventHandlerTypes
+    public class SingleTimerEventHandlers : EventArgs
+    {
+        public SingleTimer.SingleTimerElapsedTimeChanging ElapsedTimeChanging { get; set; }
+
+        internal bool IsNull()
+        {
+            if (ElapsedTimeChanging == null)
+                return true;
+            return false;
+        }
+    }
+    #endregion
 }

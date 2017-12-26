@@ -288,7 +288,6 @@
             this.ConnectionStatusButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.ConnectionStatusButton.Name = "ConnectionStatusButton";
             this.ConnectionStatusButton.Size = new System.Drawing.Size(23, 22);
-            this.ConnectionStatusButton.Visible = false;
             // 
             // statusStrip1
             // 

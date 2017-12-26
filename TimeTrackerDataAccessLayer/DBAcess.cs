@@ -6,6 +6,7 @@ using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using static SingleTimerLib.SingleTimer;
 using static TimeTrackerDataAccessLayer.DBAccess;
 
 namespace TimeTrackerDataAccessLayer
@@ -57,8 +58,8 @@ namespace TimeTrackerDataAccessLayer
                 e.CreateDatabase.Connection = Connection = new SQLiteConnection(connectionstring);
             }
         }
-
-        public static void FillTimersCollection(ref SingleTimerLib.SingleTimersCollection timers, DataTable timer) => timers.AddRange(timer.Rows);
+        public static void FillTimersCollection(ref SingleTimerLib.SingleTimersCollection timers, DataTable timer)
+            => timers.AddRange(timer.Rows);
         #endregion
         #endregion
         #region FillDatabase
@@ -70,8 +71,7 @@ namespace TimeTrackerDataAccessLayer
         #region Firld_Property_Defs
         public Dictionary<string, string> Commands { get; set; }
         public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
-        SQLiteCommand name_exists_command;
-        SQLiteCommandBuilder commandbuilder;
+        readonly SQLiteCommandBuilder commandbuilder;
         public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; }
         public SQLiteConnection Connection { get; set; }
         public SQLiteDataAdapter Adapter { get; set; }
