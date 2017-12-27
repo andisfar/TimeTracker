@@ -109,7 +109,7 @@ namespace TimeTracker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SELECT Name FROM [Timer] WHERE Name = @Name;.
+        ///   Looks up a localized string similar to SELECT Count(*) FROM [Timer] WHERE Name = @Name;.
         /// </summary>
         internal static string name_exists_command {
             get {
@@ -137,7 +137,7 @@ namespace TimeTracker.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Name = @Name;.
+        ///   Looks up a localized string similar to UPDATE [Timer] SET Name = @Name, Elapsed = @Elapsed WHERE Id = @Id;.
         /// </summary>
         internal static string update_command {
             get {

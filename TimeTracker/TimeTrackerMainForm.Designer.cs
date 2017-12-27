@@ -34,7 +34,7 @@
             this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.elapsedDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TimersBS = new System.Windows.Forms.BindingSource(this.components);
+            this.TimerBS = new System.Windows.Forms.BindingSource(this.components);
             this.TimerDataSet = new System.Data.DataSet();
             this.Timer = new System.Data.DataTable();
             this.Id = new System.Data.DataColumn();
@@ -54,7 +54,7 @@
             this.bindingNavigatorDeleteItem = new System.Windows.Forms.ToolStripButton();
             this.bindingNavigatorSaveToDatabase = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerBS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataSet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).BeginInit();
@@ -71,7 +71,7 @@
             this.idDataGridViewTextBoxColumn,
             this.nameDataGridViewTextBoxColumn,
             this.elapsedDataGridViewTextBoxColumn});
-            this.TimerDataGridView.DataSource = this.TimersBS;
+            this.TimerDataGridView.DataSource = this.TimerBS;
             this.TimerDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TimerDataGridView.Location = new System.Drawing.Point(0, 25);
             this.TimerDataGridView.Name = "TimerDataGridView";
@@ -100,11 +100,10 @@
             this.elapsedDataGridViewTextBoxColumn.HeaderText = "Elapsed";
             this.elapsedDataGridViewTextBoxColumn.Name = "elapsedDataGridViewTextBoxColumn";
             // 
-            // TimersBS
+            // TimerBS
             // 
-            this.TimersBS.DataMember = "Timer";
-            this.TimersBS.DataSource = this.TimerDataSet;
-            this.TimersBS.AddingNew += new System.ComponentModel.AddingNewEventHandler(this.TimersBS_AddingNew);
+            this.TimerBS.DataMember = "Timer";
+            this.TimerBS.DataSource = this.TimerDataSet;
             // 
             // TimerDataSet
             // 
@@ -152,7 +151,7 @@
             // TimerBN
             // 
             this.TimerBN.AddNewItem = null;
-            this.TimerBN.BindingSource = this.TimersBS;
+            this.TimerBN.BindingSource = this.TimerBS;
             this.TimerBN.CountItem = this.bindingNavigatorCountItem;
             this.TimerBN.DeleteItem = null;
             this.TimerBN.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -284,7 +283,7 @@
             this.Name = "TimeTrackerMainForm";
             this.Text = "Time Trackers";
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.TimersBS)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimerBS)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataSet)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Timer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBN)).EndInit();
@@ -298,7 +297,7 @@
         #endregion
 
         private System.Windows.Forms.DataGridView TimerDataGridView;
-        private System.Windows.Forms.BindingSource TimersBS;
+        private System.Windows.Forms.BindingSource TimerBS;
         private System.Windows.Forms.BindingNavigator TimerBN;
         private System.Windows.Forms.ToolStripButton bindingNavigatorAddNewItem;
         private System.Windows.Forms.ToolStripLabel bindingNavigatorCountItem;
