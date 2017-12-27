@@ -27,18 +27,18 @@ namespace SingleTimerLib
 
         private int StartIn { get; set; }
 
-        public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, bool isNewRow = false, SingleTimerEditorFormTimerNeeded QueryTimerNeededHandler = null)
+        public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, DataGridViewRow r, bool isNewRow = false, SingleTimerEditorFormTimerNeeded QueryTimerNeededHandler = null)
         {
             InitializeComponent();
             _timer = null;
-            _rowIndex = e.RowIndex;
+            _rowIndex = Convert.ToInt32(r.Cells[0].EditedFormattedValue.ToString());
             _newTimerNeeded = isNewRow;
             StartIn = e.ColumnIndex;
             if(QueryTimerNeededHandler != null)
             {
                 QueryTimerNeeded += QueryTimerNeededHandler;
             }
-            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(e.RowIndex, _newTimerNeeded));
+            QueryRetrieveTimer(this, new SingleTimerEditorFormTimerNeededEventArgs(_rowIndex, _newTimerNeeded));
         }
 
         public delegate void SingleTimerEditorFormTimerNeeded(object sender, SingleTimerEditorFormTimerNeededEventArgs e);
@@ -205,6 +205,40 @@ namespace SingleTimerLib
         private void TimerElapsedTimeTextBox_TextChanged(object sender, EventArgs e)
         {
             acceptButton.Enabled = true;
+        }
+
+        private void TimerNameTextBox_Validating(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if(TimerNameExists(TimerNameTextBox.Text))
+            {
+                MessageBox.Show($"'{TimerNameTextBox.Text}' already exists, choose another name!");
+                e.Cancel = true;
+            }
+        }
+
+        private bool TimerNameExists(string name)
+        {
+            using (SingleTimerEditorFormCheckNameEventArgs e = new SingleTimerEditorFormCheckNameEventArgs(name))
+            {
+                OnCheckTimerNameExists(this, e);
+                return e.Exists;
+            } 
+        }
+
+        public delegate void CheckTimerNameExistsHandler(object sender, SingleTimerEditorFormCheckNameEventArgs e);
+        public event CheckTimerNameExistsHandler CheckNameExists;
+
+        private void OnCheckTimerNameExists(object sender, SingleTimerEditorFormCheckNameEventArgs e)
+        {
+            CheckNameExists?.Invoke(sender, e);
+        }
+
+        private void TimerNameTextBox_Leave(object sender, EventArgs e)
+        {
+            var cancel = false;
+            TimerNameTextBox_Validating(this, new System.ComponentModel.CancelEventArgs(cancel));
+            if (cancel)
+                TimerNameTextBox.Focus();
         }
     }
 

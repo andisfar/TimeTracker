@@ -116,6 +116,8 @@ namespace SingleTimerLib
             FinishInit(elapsedTimeOffset);
         }
 
+        public SingleTimer(SingleTimer t) => timer = (SingleTimer)t.MemberwiseClone();
+
         private void FinishInit(string elapsedTimeOffset)
         {
             OnPropertyChangedEventHandler(nameof(RowIndex));
@@ -203,6 +205,7 @@ namespace SingleTimerLib
         }
 
         private string _name;
+        private SingleTimer timer;
 
         public string Name
         {
@@ -214,7 +217,7 @@ namespace SingleTimerLib
 
         public bool IsRunning
         {
-            get { return stopWatch.IsRunning; }
+            get => stopWatch.IsRunning;
         }
 
         public string CanonicalName => Name.Trim('*');

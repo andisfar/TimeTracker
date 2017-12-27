@@ -71,6 +71,22 @@ namespace TimeTrackerDataAccessLayer
         #region Firld_Property_Defs
         public Dictionary<string, string> Commands { get; set; }
         public Dictionary<string, SQLiteCommand> sqliteCommands = new Dictionary<string, SQLiteCommand>();
+
+        public bool NameExists(string name, string name_exists_command)
+        {
+            var exists = false;
+            using (var command = new SQLiteCommand(name_exists_command, Connection))
+            {
+                var nameParam = new SQLiteParameter("@Name", name);
+                command.Parameters.Add(nameParam);
+                command.Open();
+                var affected = command.ExecuteNonQuery();
+                command.Close();
+                exists = affected > 0;
+            }
+            return exists;
+        }
+
         readonly SQLiteCommandBuilder commandbuilder;
         public SQLiteCommandBuilder TimerCommandBuilder { get => commandbuilder; }
         public SQLiteConnection Connection { get; set; }
