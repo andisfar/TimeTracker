@@ -114,7 +114,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                         }
                         catch (System.InvalidOperationException)
                         {
-                            // do nothing yet
+                            Log_Message("");
                         }
                         catch(Exception)
                         {
@@ -284,7 +284,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             _timers.RemoveAt(rowID);
             EnableSave();
         }
-        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
+        private static void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
         {
         }
         readonly List<int> _deleted_Rows = new List<int>();
@@ -371,7 +371,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                 {
                     Log_Message(row);
                 }
-                catch (DeletedRowInaccessibleException ex)
+                catch (DeletedRowInaccessibleException)
                 {
                     Log_Message("Unable to log info about deleted row!");
                     continue;
