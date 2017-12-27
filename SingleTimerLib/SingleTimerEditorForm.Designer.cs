@@ -113,6 +113,8 @@
             this.TimerNameTextBox.TabIndex = 0;
             this.TimerNameTextBox.WordWrap = false;
             this.TimerNameTextBox.TextChanged += new System.EventHandler(this.TimerNameTextBox_TextChanged);
+            this.TimerNameTextBox.Leave += new System.EventHandler(this.TimerNameTextBox_Leave);
+            this.TimerNameTextBox.Validating += new System.ComponentModel.CancelEventHandler(this.TimerNameTextBox_Validating);
             this.TimerNameTextBox.Validated += new System.EventHandler(this.TimerNameTextBox_Validated);
             // 
             // TimerElapsedTimeTextBox

@@ -54,6 +54,7 @@
     <Compile Include="SingleTimerEditorForm.Designer.cs">
       <DependentUpon>SingleTimerEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="SingleTimerEditorFormCheckNameEventArgs.cs" />
     <Compile Include="SingleTimersCollection.cs" />
   </ItemGroup>
   <ItemGroup>

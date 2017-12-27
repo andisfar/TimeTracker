@@ -116,6 +116,8 @@ namespace SingleTimerLib
             FinishInit(elapsedTimeOffset);
         }
 
+        public SingleTimer(SingleTimer t) => timer = (SingleTimer)t.MemberwiseClone();
+
         private void FinishInit(string elapsedTimeOffset)
         {
             OnPropertyChangedEventHandler(nameof(RowIndex));
@@ -179,7 +181,7 @@ namespace SingleTimerLib
             }
         }
 
-        internal static string BlankTimerValue() => $"{"00"}:{"00"}:{"00"}";
+        internal static string BlankTimerValue { get => $"{"00"}:{"00"}:{"00"}"; }
 
         public void StartOrStop()
         {
@@ -191,9 +193,20 @@ namespace SingleTimerLib
 
         private void HeartBeat_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            heartBeat.Enabled = false;
-            HandleTimerElapsed();
-            heartBeat.Enabled = true;
+            try
+            {
+                heartBeat.Enabled = false;
+                HandleTimerElapsed();
+                heartBeat.Enabled = true;
+            }
+            catch (System.ObjectDisposedException)
+            {
+                return;
+            }
+            catch(Exception)
+            {
+                throw;
+            }
         }
 
         public void HandleTimerElapsed()
@@ -203,6 +216,7 @@ namespace SingleTimerLib
         }
 
         private string _name;
+        private SingleTimer timer;
 
         public string Name
         {
@@ -214,7 +228,7 @@ namespace SingleTimerLib
 
         public bool IsRunning
         {
-            get { return stopWatch.IsRunning; }
+            get => stopWatch.IsRunning;
         }
 
         public string CanonicalName => Name.Trim('*');
