@@ -147,12 +147,18 @@ namespace SingleTimerLib
             Add(rowID,new SingleTimer(rowID,row[1].ToString(),row[2].ToString(),_eventHandlers.ElapsedTimeChanging));
             this[rowID].NameChanging += _eventHandlers.NameChaning;
         }
+
+        public void RemoveAt(int key)
+        {
+            this.RemoveAt(key);
+        }
     }
     #region EventHandlerTypes
     public class SingleTimerEventHandlers : EventArgs
     {
         public SingleTimer.SingleTimerElapsedTimeChanging ElapsedTimeChanging { get; set; }
         public SingleTimer.SingleTimerNameChanging NameChaning { get; set; }
+        public SingleTimer.TimerResetHandler ResetTimer { get; set; }
 
         internal bool IsNull()
         {
@@ -162,6 +168,10 @@ namespace SingleTimerLib
             }
 
             if (NameChaning ==  null)
+            {
+                return true;
+            }
+            if(ResetTimer == null)
             {
                 return true;
             }

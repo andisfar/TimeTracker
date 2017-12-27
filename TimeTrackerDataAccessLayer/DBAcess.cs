@@ -160,8 +160,11 @@ namespace TimeTrackerDataAccessLayer
                 }
                 if (row.RowState == DataRowState.Deleted)
                 {
-                    var id = new SQLiteParameter("@Id", row.OriginalId());
-                    update.Parameters.Add(id);
+                    var id = new SQLiteParameter("@Id", row.OriginalId())
+                    {
+                        Command = delete
+                    };
+                    delete.Parameters.Add(id);
                     delete.Open();
                     affected += delete.ExecuteNonQuery();
                     delete.Close();
