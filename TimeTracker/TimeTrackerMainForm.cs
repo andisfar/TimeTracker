@@ -77,6 +77,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                 editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
                 editor.RequestStartTimer += Editor_RequestStartTimer;
                 editor.RequestStopTimer += Editor_RequestStopTimer;
+                editor.Timer.NameChanging += Timer_NameChanging;
                 t = editor.Timer;                
                 return editor.ShowDialog(this);
             }
@@ -107,10 +108,20 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                     {
                         MessageBox.Show(this, ex.Message, nameof(System.Data.ConstraintException),MessageBoxButtons.OK,MessageBoxIcon.Error);
                         e.Cancel = true;
-                        TimerDataGridView.Rows.RemoveAt(e.RowIndex);
+                        try
+                        {
+                            TimerDataGridView.Rows.RemoveAt(e.RowIndex);
+                        }
+                        catch (System.InvalidOperationException)
+                        {
+                            // do nothing yet
+                        }
+                        catch(Exception)
+                        {
+                            throw;
+                        }
                     }
                     TimerDataGridView.EndEdit();
-                    if(!e.Cancel)Log_Message(Timer.Rows[e.RowIndex]);
                 }
             }
             e.Cancel = true;
@@ -172,12 +183,9 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private void Timer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
         {
-            Log_Message($"{caller} says Timer with Elapsed Time Value {e.OldName}");
-            Log_Message($"{caller} says Timer with Elapsed Time Value {e.NewName}");
-            Log_Message($"{caller} says Timer with row index of {e.Timer.RowIndex}");
-            Log_Message($"{caller} says Timer with name of {e.Timer.CanonicalName}");
-            Log_Message($"{caller} says Timer with menu text {e.Timer.MenuText}");
-            e.Timer.DebugPrint(InfoTypes.TimerEvents);
+            if (e.Timer.IsRunning)
+            { Timer.AcceptChanges(); }
+            else { EnableSave(); }
             UpdateDataGridViewRow(e);
         }
         private void UpdateDataGridViewRow(SingleTimerNameChangingEventArgs e)
@@ -198,7 +206,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                 }
             }
             bindingNavigatorSaveToDatabase.PerformClick();
-            Log_Message($"{e.OldName} changed from {e.OldName}");
             Application.DoEvents();
         }
         private void TimeTrackerMainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -208,11 +215,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private void TimeTrackerMainForm_ElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
         {
-            Log_Message($"Timer with Elapsed Time Value {e.ElapsedTime}");
-            Log_Message($"Timer with row index of {e.Timer.RowIndex}");
-            Log_Message($"Timer with name of {e.Timer.CanonicalName}");
-            Log_Message($"Timer with menu text {e.Timer.MenuText}");
-            e.Timer.DebugPrint(InfoTypes.TimerEvents);
             UpdateDataGridViewRow(e);            
         }
         private void UpdateDataGridViewRow(SingleTimerElapsedTimeChangingEventArgs e)
@@ -235,12 +237,19 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private static void Log_Message(DataRow row)
         {
-            Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+            try
+            {
+                Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[0]}]\tName:\t[{row[1]}]\tElapsed:\t[{row[2]}]");
+            }
+            catch (System.Data.DeletedRowInaccessibleException)
+            {
+                Log_Message($"State:[{row.RowState.ToString()}\tId:\t[{row[nameof(Id),DataRowVersion.Original]}]\tName:\t[{row[nameof(Name), DataRowVersion.Original]}]\tElapsed:\t[{row[nameof(Elapsed), DataRowVersion.Original]}]");
+            }
+           
         }
         private void BindingNavigatorSaveToDatabase_Click(object sender, EventArgs e)
         {
-            SaveToDatabase();
-            Log_Message(Timer);
+            SaveToDatabase();            
         }
         private void SaveToDatabase()
         {
@@ -253,8 +262,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private void Timer_TableNewRow(object sender, DataTableNewRowEventArgs e)
         {
-            Log_Message("TableNewRow");
-            Log_Message(Timer);
             EnableSave();
         }
         private void EnableSave()
@@ -262,15 +269,12 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             if(this.InvokeRequired)
             {
                 this.Invoke(new Action(EnableSave));
-                Log_Message($"Invoke from owning thread!");
                 return;
             }
             bindingNavigatorSaveToDatabase.Enabled = true;
         }
         private void Timer_RowChanged(object sender, DataRowChangeEventArgs e)
         {            
-            Log_Message("RowChanged");
-            Log_Message(Timer);
             EnableSave();
         }
         private void Timer_RowDeleted(object sender, DataRowChangeEventArgs e)
@@ -278,11 +282,11 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             var rowID = Convert.ToInt32(e.Row[nameof(Id), DataRowVersion.Original].ToString());
             _timers[rowID].Dispose();
             _timers.RemoveAt(rowID);
-            Log_Message("RowDeleted");
-            Log_Message(Timer);
             EnableSave();
         }
-        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e) => Log_Message(Timer);
+        private void BindingNavigatorDeleteItem_Click(object sender, EventArgs e)
+        {
+        }
         readonly List<int> _deleted_Rows = new List<int>();
         private void TimerDataGridView_UserDeletedRow(object sender, DataGridViewRowEventArgs e)
         {
@@ -294,7 +298,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                     row.Delete();
                 }
             }
-            Log_Message(Timer);
             Deleted_Rows.Clear();
         }
         private void TimerDataGridView_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
@@ -302,25 +305,20 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             if(this.InvokeRequired)
             {
                 this.Invoke(new Action<object, DataGridViewRowCancelEventArgs>(TimerDataGridView_UserDeletingRow), sender, e);
-                Log_Message("Invoking on owning thread!");
                 return;
             }
-            Log_Message($"Removing row at index {e.Row.Index}, with RowID of {e.Row.Key()}");
             Deleted_Rows.Add(e.Row.Key());
         }
         private void TimerDataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
         {
             UserAddedRow = true;
-            Log_Message(Timer);
         }
         private void BindingNavigatorAddNewItem_Click(object sender, EventArgs e)
         {
-            Log_Message("User CLicked Add Button!");
             TimersDataGridView_CellBeginEdit(this, new DataGridViewCellCancelEventArgs(TimerDataGridView.CurrentCell.ColumnIndex,TimerDataGridView.CurrentRow.Index));
         }
         private void Connection_StateChanged(object sender, StateChangeEventArgs e)
         {
-            Log_Message($"Connection currently '{e.CurrentState.ToString()}'");
             switch(e.CurrentState)
             {
                 case ConnectionState.Connecting:
@@ -364,10 +362,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                 _timers.AddTimer(row);
                 UserAddedRow = false;
             }
-            Log_Message($"(Row,\tColumn)");
-            Log_Message($"({e.RowIndex},\t\t{e.ColumnIndex})");
-            Log_Message($"Cell End Edit!");
-            Log_Message(Timer);
         }
         private static void Log_Message(DataTable dataTable)
         {
@@ -386,8 +380,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private static void DataAdapter_RowUpdating(object sender, System.Data.Common.RowUpdatingEventArgs e)
         {
-            Log_Message(e.StatementType.ToString());
-            Log_Message(e.Status.ToString());
         }
         private static void Log_Message(string message)
         {
@@ -395,9 +387,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private static void DataAdapter_RowUpdated(object sender, System.Data.Common.RowUpdatedEventArgs e)
         {
-            Log_Message($"{e.RecordsAffected} rows affected!");
-            Log_Message(e.StatementType.ToString());
-            Log_Message(e.Status.ToString());
         }
         private static void DataAdapter_FillError(object sender, System.Data.FillErrorEventArgs e)
         {
@@ -409,7 +398,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private static void TimerDataGridView_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            Log_Message($"{e.Exception.Message} : Number {e.Exception.HResult}");
         }
         private static void DataAcessLayer_NeedConnectionString(object sender, NeedConnectionStringEventArgs e)
         {

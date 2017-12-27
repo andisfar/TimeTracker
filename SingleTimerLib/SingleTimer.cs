@@ -108,11 +108,13 @@ namespace SingleTimerLib
             FinishInit("00:00:00");
         }
 
-        public SingleTimer(Int32 rowIndex, string name, string elapsedTimeOffset, SingleTimerElapsedTimeChanging elapsedTimeChangingHandler)
+        public SingleTimer(Int32 rowIndex, string name, string elapsedTimeOffset, SingleTimerEventHandlers eventHandlers)
         {
             _name = name;
             _rowIndex = rowIndex;
-            ElapsedTimeChanging += elapsedTimeChangingHandler;
+            ElapsedTimeChanging += eventHandlers.ElapsedTimeChanging;
+            NameChanging += eventHandlers.NameChaning;
+            TimerReset += eventHandlers.ResetTimer;
             FinishInit(elapsedTimeOffset);
         }
 

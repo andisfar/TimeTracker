@@ -69,7 +69,6 @@
             // 
             // TimerDataGridView
             // 
-            this.TimerDataGridView.AllowUserToAddRows = false;
             this.TimerDataGridView.AutoGenerateColumns = false;
             this.TimerDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.TimerDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
