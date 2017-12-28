@@ -75,7 +75,7 @@ namespace SingleTimerLib
         }
         public SingleTimerLib.SingleTimer AddTimer(int key, string canonicalNmae, string elapsedTimeOffset)
         {
-            Add(key, new SingleTimer(key, canonicalNmae, elapsedTimeOffset, _eventHandlers));
+            this[key] = new SingleTimer(key, canonicalNmae, elapsedTimeOffset, _eventHandlers);
             return this[key];
         }
         public void Add(int key, SingleTimer value)
@@ -144,7 +144,7 @@ namespace SingleTimerLib
         public void AddTimer(DataRow row)
         {
             var rowID = Convert.ToInt32(row[0].ToString());
-            Add(rowID,new SingleTimer(rowID,row[1].ToString(),row[2].ToString(),_eventHandlers));
+            this[rowID] = new SingleTimer(rowID,row[1].ToString(),row[2].ToString(),_eventHandlers);
             this[rowID].NameChanging += _eventHandlers.NameChaning;
         }
 

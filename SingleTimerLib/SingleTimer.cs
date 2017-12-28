@@ -56,7 +56,7 @@ namespace SingleTimerLib
         {
             get
             {
-                MulticastDelegate m = (MulticastDelegate)ElapsedTimeChanging;
+                var m = (MulticastDelegate)ElapsedTimeChanging;
                 return m?.GetInvocationList();
             }
         }
@@ -65,7 +65,7 @@ namespace SingleTimerLib
         {
             get
             {
-                MulticastDelegate m = (MulticastDelegate)this.NameChanging;
+                var m = (MulticastDelegate)this.NameChanging;
                 return m?.GetInvocationList();
             }
         }
@@ -75,7 +75,7 @@ namespace SingleTimerLib
             get
             {
 
-                MulticastDelegate m = (MulticastDelegate)this.TimerReset;
+                var m = (MulticastDelegate)this.TimerReset;
                 return m?.GetInvocationList();
             }
         }
@@ -118,8 +118,6 @@ namespace SingleTimerLib
             FinishInit(elapsedTimeOffset);
         }
 
-        public SingleTimer(SingleTimer t) => timer = (SingleTimer)t.MemberwiseClone();
-
         private void FinishInit(string elapsedTimeOffset)
         {
             OnPropertyChangedEventHandler(nameof(RowIndex));
@@ -151,7 +149,7 @@ namespace SingleTimerLib
 
         private void IncrementTime()
         {
-            TimeSpan runningTime = new TimeSpan((int)Hours_offset, (int)Minutes_offset, (int)Seconds_offset);
+            var runningTime = new TimeSpan((int)Hours_offset, (int)Minutes_offset, (int)Seconds_offset);
             runningTime += stopWatch.Elapsed;
             Running_seconds = runningTime.Seconds;
             Running_minutes = runningTime.Minutes;
@@ -175,7 +173,7 @@ namespace SingleTimerLib
                 }
                 else
                 {
-                    string[] elapsedTime = value.Split(':');
+                    var elapsedTime = value.Split(':');
                     Hours_offset = Int32.Parse(elapsedTime[0]);
                     Minutes_offset = Int32.Parse(elapsedTime[1]);
                     Seconds_offset = Int32.Parse(elapsedTime[2]);
@@ -239,17 +237,17 @@ namespace SingleTimerLib
 
         public void SetElapsedTime(string runningElapsedTime)
         {
-           TimeSpan newTime = new TimeSpan(ParseHours(runningElapsedTime)[0], ParseHours(runningElapsedTime)[1], ParseHours(runningElapsedTime)[2]);
+           var newTime = new TimeSpan(ParseHours(runningElapsedTime)[0], ParseHours(runningElapsedTime)[1], ParseHours(runningElapsedTime)[2]);
             Running_hours = newTime.Hours;
             Running_minutes = newTime.Minutes;
             Running_seconds = newTime.Seconds;
             OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
         }
 
-        private int[] ParseHours(string runningElapsedTime)
+        private static int[] ParseHours(string runningElapsedTime)
         {
-            List<int> retInts = new List<int>{0,0,0};
-            string[] intStr = runningElapsedTime.Split(':');
+            var retInts = new List<int>{0,0,0};
+            var intStr = runningElapsedTime.Split(':');
             retInts[0] = Int32.Parse(intStr[0]);
             retInts[1] = Int32.Parse(intStr[1]);
             retInts[2] = Int32.Parse(intStr[2]);
@@ -277,55 +275,55 @@ namespace SingleTimerLib
             OnResetTimer();
         }
 
-        public void DebugPrint(InfoTypes showMe = InfoTypes.Default)
+        public void Log_Message(InfoTypes showMe = InfoTypes.Default)
         {
             switch (showMe)
             {
                 case InfoTypes.TimerEvents:
                     {
-                        DebugPrint($"Name  = {nameof(ElapsedTimeChanging)}");
+                        Log_Message($"Name  = {nameof(ElapsedTimeChanging)}");
                         try
                         {
                             foreach (Delegate @d in ElapsedTimeChangingInvocationList)
                             {
-                                DebugPrint($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
+                                Log_Message($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
                             }
                         }
                         catch (Exception)
                         {
-                            DebugPrint($"Value = {"Not Set"}");
+                            Log_Message($"Value = {"Not Set"}");
                         }
 
-                        DebugPrint($"Name  = {nameof(NameChanging)}");
+                        Log_Message($"Name  = {nameof(NameChanging)}");
                         try
                         {
                             foreach (Delegate @d in NameChangingInvocationList)
                             {
-                                DebugPrint($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
+                                Log_Message($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
                             }
                         }
                         catch (Exception)
                         {
-                            DebugPrint($"Value = {"Not Set"}");
+                            Log_Message($"Value = {"Not Set"}");
                         }
 
-                        DebugPrint($"Name  = {nameof(TimerReset)}");
+                        Log_Message($"Name  = {nameof(TimerReset)}");
                         try
                         {
                             foreach (Delegate @d in TimerResetInvocationList)
                             {
-                                DebugPrint($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
+                                Log_Message($"Value = {d.GetMethodInfo().ReflectedType.Name}.{d.GetMethodInfo().Name}");
                             }
                         }
                         catch (NullReferenceException)
                         {
-                            DebugPrint($"Value = {"Not Set"}");
+                            Log_Message($"Value = {"Not Set"}");
                         }
                         break;
                     }
                 default:
                     {
-                        DebugPrint($"Timer Row Index: {RowIndex}, Timer State: {TimerState.ToString()}");
+                        Log_Message($"Timer Row Index: {RowIndex}, Timer State: {TimerState.ToString()}");
                         break;
                     }
             }
@@ -346,7 +344,7 @@ namespace SingleTimerLib
                 stopWatch.Stop();
                 heartBeat.Enabled = false;
             }
-            DebugPrint($"'{CanonicalName}' is now stopped!");
+            Log_Message($"'{CanonicalName}' is now stopped!");
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
             OnPropertyChangedEventHandler(nameof(IsRunning));
         }
@@ -358,8 +356,8 @@ namespace SingleTimerLib
                 stopWatch.Start();
                 heartBeat.Enabled = true;
             }
-            DebugPrint($"'{CanonicalName}' is now running!");
-            DebugPrint(InfoTypes.TimerEvents);
+            Log_Message($"'{CanonicalName}' is now running!");
+            Log_Message(InfoTypes.TimerEvents);
             OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
             OnPropertyChangedEventHandler(nameof(IsRunning));
             OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
@@ -377,7 +375,7 @@ namespace SingleTimerLib
 
         public void Dispose()
         {
-            DebugPrint($"Timer '{CanonicalName}' is being disposed!");
+            Log_Message($"Timer '{CanonicalName}' is being disposed!");
             Dispose(true);
             GC.SuppressFinalize(this);
             return;
@@ -388,7 +386,7 @@ namespace SingleTimerLib
             Name = name; ;
         }
 
-        private void DebugPrint(string message, [CallerMemberName] string caller = "")
+        private static void Log_Message(string message, [CallerMemberName] string caller = "")
         {
             var messageWithTimeStamp = $"[{DateTime.Now.ToString(@"HH:mm:ss:fff")}]\t{caller} says {message}";
             Debug.Print(messageWithTimeStamp);
@@ -405,6 +403,7 @@ namespace SingleTimerLib
 
         public SingleTimerElapsedTimeChangingEventArgs(string elapsedTime, SingleTimer t, [CallerMemberName] string caller = "")
         {
+            Debug.Print($"{caller} instantiates a new SingleTimerElapsedTimeChangingEventArgs!");
             _t = t;
             _elapsedTime = elapsedTime;
         }
@@ -421,6 +420,7 @@ namespace SingleTimerLib
 
         public SingleTimerNameChangingEventArgs(string oldName, string newName, SingleTimer t, [CallerMemberName] string caller = "")
         {
+            Debug.Print($"{caller} instantiates a new SingleTimerNameChangingEventArgs!");
             _oldName = oldName;
             _newName = newName;
             Timer = t;
