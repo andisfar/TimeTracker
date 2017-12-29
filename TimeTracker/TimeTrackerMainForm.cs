@@ -65,9 +65,9 @@ namespace TimeTracker
             ConnectEventHandlers();
         }
 
-private void Timer_TimerReset(object sender, SingleTimerLibEventArgs e)
+private static void Timer_TimerReset(object sender, SingleTimerLibEventArgs e)
 {
-    Timer.AcceptChanges();
+    //Timer.AcceptChanges();
 }
 private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTimer, out SingleTimer t)
         {
@@ -183,9 +183,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         }
         private void Timer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
         {
-            if (e.Timer.IsRunning)
-            { Timer.AcceptChanges(); }
-            else { EnableSave(); }
+            EnableSave();
             UpdateDataGridViewRow(e);
         }
         private void UpdateDataGridViewRow(SingleTimerNameChangingEventArgs e)
@@ -229,10 +227,10 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             {
                 if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
                 {
-                    r.Cells[2].Value = e.Timer.RunningElapsedTime;
+                    r.Cells[2].Value = e.Timer.RunningElapsedTime;                    
                 }
             }
-            bindingNavigatorSaveToDatabase.PerformClick();
+            EnableSave();
             Application.DoEvents();
         }
         private static void Log_Message(DataRow row)

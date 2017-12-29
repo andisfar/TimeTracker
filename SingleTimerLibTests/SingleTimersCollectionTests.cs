@@ -1,9 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SingleTimerLib;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -48,31 +50,28 @@ namespace SingleTimerLib.Tests
         [TestMethod()]
         public void AddTest()
         {
+            InitCollection();
             Assert.IsTrue(collection.Count == 0);
-            using (var singleTimer = new SingleTimer(0, "Test Timer"))
+            using (var singleTimer = new SingleTimer(232, "Test Timer"))
             {
-                collection.Add(0, singleTimer);
+                collection.Add(singleTimer.RowIndex, singleTimer);
             }
             Assert.IsTrue(collection.Count == 1);
-            Assert.IsNotNull(collection[0]);
-            SingleTimer.Log_Message(collection[0].CanonicalName);
-            collection.Dispose();
-            collection[0].ResetTimer();
+            Assert.IsNotNull(collection[232]);
+            SingleTimer.Log_Message(collection[232].CanonicalName);
+            collection.Dispose();          
         }
 
         [TestMethod()]
         public void AddTimerTest()
         {
+            InitCollection();
             Assert.IsTrue(collection.Count == 0);
-            using (var singleTimer = new SingleTimer(0, "Test Timer"))
-            {
-                collection.AddTimer(0,singleTimer.CanonicalName,"00:00:00");
-            }
+            collection.AddTimer(232,"Test Timer", "00:00:00");
             Assert.IsTrue(collection.Count == 1);
-            Assert.IsNotNull(collection[0]);
-            SingleTimer.Log_Message(collection[0].CanonicalName);
+            Assert.IsNotNull(collection[232]);
+            SingleTimer.Log_Message(collection[232].CanonicalName);
             collection.Dispose();
-            collection[0].ResetTimer();
         }
 
         [TestMethod()]
@@ -139,38 +138,83 @@ namespace SingleTimerLib.Tests
         [TestMethod()]
         public void GetEnumeratorTest()
         {
-            Assert.Fail();
+            InitCollection();
+            Assert.IsTrue(collection.Count == 0);
+            collection.AddTimer(232, "Test Timer1", "00:45:45");
+            collection.AddTimer(233, "Test Timer2", "00:45:45");
+            collection.AddTimer(234, "Test Timer3", "00:45:45");
+            collection.AddTimer(235, "Test Timer4", "00:45:45");
+            collection.AddTimer(236, "Test Timer5", "00:45:45");
+            collection.AddTimer(237, "Test Timer6", "00:45:45");
+            Assert.IsTrue(collection.Count == 6);
+            IEnumerator singleTimerEnumerator = collection.GetEnumerator();
         }
 
         [TestMethod()]
         public void RemoveTest()
         {
-            Assert.Fail();
+            InitCollection(); 
+            Assert.IsTrue(collection.Count == 0);
+            collection.AddTimer(232, "Test Timer", "00:45:45");
+            Assert.IsTrue(collection.Count == 1);
+            collection.Remove(232);
+            Assert.IsTrue(collection.Count == 0);
         }
 
         [TestMethod()]
         public void RemoveTest1()
         {
-            Assert.Fail();
+            InitCollection();
+            Assert.IsTrue(collection.Count == 0);
+            collection.AddTimer(232, "Test Timer", "00:45:45");
+            Assert.IsTrue(collection.Count == 1);
+            collection.TryGetValue(232, out SingleTimer timer);
+            var item = new KeyValuePair<int, SingleTimer>(232, timer);
+            collection.Remove(item);
+            Assert.IsTrue(collection.Count == 0);
         }
 
         [TestMethod()]
         public void TryGetValueTest()
         {
-            Assert.Fail();
+            InitCollection();
+            Assert.IsTrue(collection.Count == 0);
+            collection.AddTimer(232, "Test Timer", "00:45:45");            
+            Assert.IsTrue(collection.Count == 1);
+            collection.TryGetValue(232, out SingleTimer timer);
+            Assert.IsInstanceOfType(timer, typeof(SingleTimer));
+            timer.ReNameTimer("new timer name");
+            timer.StartOrStop();
+            timer.Dispose();
+        }
+
+        private void InitCollection()
+        {
+            eventHandlers = new SingleTimerEventHandlers
+            {
+                NameChaning = Timer_NameChanging,
+                ElapsedTimeChanging = Timer_ElapsedTimeChanging,
+                ResetTimer = Timer_TimerReset
+            };
+
+            collection = new SingleTimersCollection(eventHandlers);           
         }
 
         [TestMethod()]
         public void DisposeTest()
         {
-            Assert.Fail();
+            InitCollection();
+            Assert.IsTrue(collection.Count == 0);
+            collection.AddTimer(232, "Test Timer", "00:45:45");
+            Assert.IsTrue(collection.Count == 1);
+            Dispose();
         }
 
         [TestMethod()]
         public void AddTimerTest1()
         {
             var DataFile = @"Test_Database.db";
-            var dataFileInfo = new FileInfo(DataFile);
+            var dataFileInfo = new FileInfo(DataFile);            
             DataTable dt;
             dt = CreateTimerTable();
             //
@@ -188,19 +232,24 @@ namespace SingleTimerLib.Tests
                 CreateDBHandler = DataAccessLayer_NeedDatabaseCreateCommand,
                 ConnectionStringHandler = DataAcessLayer_NeedConnectionString
             });
+            Assert.IsTrue(File.Exists(DataFile));
+            Debug.Print($"{dataFileInfo.FullName} exists!");
             //
-            dal.FillDataTable(dt);
+            int affected = dal.FillDataTable(dt);
+            Assert.IsTrue(affected > 0);
+            Debug.Print($"Table got filled! {affected} rows affected!");
             var dr = dt.NewRow();
+            dr[0] = 232;
             dr[1] = "Timer Test";
             dr[2] = "00:00:00";
 
             Assert.IsTrue(collection.Count == 0);
             collection.AddTimer(dr);
             Assert.IsTrue(collection.Count == 1);
-            Assert.IsNotNull(collection[0]);
-            SingleTimer.Log_Message(collection[0].CanonicalName);
+            Assert.IsNotNull(collection[232]);
+            SingleTimer.Log_Message(collection[232].CanonicalName);
             collection.Dispose();
-            collection[0].ResetTimer();
+            Assert.IsTrue(collection.Count == 0);
         }
 
         private static DataTable CreateTimerTable()
@@ -274,7 +323,12 @@ namespace SingleTimerLib.Tests
         [TestMethod()]
         public void RemoveAtTest()
         {
-            Assert.Fail();
+            InitCollection();
+            Assert.IsTrue(collection.Count == 0);
+            collection.AddTimer(232, "Test Timer", "00:45:45");
+            Assert.IsTrue(collection.Count == 1);
+            collection.RemoveAt(232);
+            Assert.IsTrue(collection.Count == 0);
         }
 
         public void Dispose()

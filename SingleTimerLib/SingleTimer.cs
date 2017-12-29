@@ -269,23 +269,34 @@ namespace SingleTimerLib
 
         public void ResetTimer()
         {
-            Hours_offset = 0;
-            Minutes_offset = 0;
-            Seconds_offset = 0;
-
-            if (IsRunning)
+            try
             {
-                stopWatch.Restart();
-            }
-            else
-            {
-                stopWatch.Reset();
-            }
+                Hours_offset = 0;
+                Minutes_offset = 0;
+                Seconds_offset = 0;
 
-            IncrementTime();
-            SetElapsedTimeLabel();
-            OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
-            OnResetTimer();
+                if (IsRunning)
+                {
+                    stopWatch.Restart();
+                }
+                else
+                {
+                    stopWatch.Reset();
+                }
+
+                IncrementTime();
+                SetElapsedTimeLabel();
+                OnPropertyChangedEventHandler(nameof(RunningElapsedTime));
+                OnResetTimer();
+            }
+            catch (ObjectDisposedException)
+            {
+                throw;
+            }
+            catch(Exception)
+            {
+                throw;
+            }
         }
 
         public void Log_Message(InfoTypes showMe = InfoTypes.Default)

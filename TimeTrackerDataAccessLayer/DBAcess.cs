@@ -63,9 +63,9 @@ namespace TimeTrackerDataAccessLayer
         #endregion
         #endregion
         #region FillDatabase
-        public void FillDataTable(DataTable dataTable)
+        public int FillDataTable(DataTable dataTable)
         {
-            commandbuilder.DataAdapter.Fill(dataTable);
+            return commandbuilder.DataAdapter.Fill(dataTable);
         }
         #endregion
         #region Firld_Property_Defs

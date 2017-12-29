@@ -27,16 +27,28 @@ namespace SingleTimerLib
         {
             get
             {
-                if (key > 0 && !ContainsKey(key))//new row
+                try
                 {
-                    return new SingleTimer(key, "Cancel");
+                    return timers[key];
                 }
-                return timers[key];
+                catch (KeyNotFoundException ex)
+                {
+                    Log_Message(ex.Message);
+                    throw new KeyNotFoundException($"'error on get' - No timer at this index {key}!", ex); ;
+                }
             }
 
             set
             {
-                timers[key] = value;
+                try
+                {
+                    timers[key] = value;
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    Log_Message(ex.Message);
+                    throw new KeyNotFoundException($"'erro on set' - No timer at this index {key}!",ex);
+                }
             }
         }
         public int Count
@@ -118,7 +130,7 @@ namespace SingleTimerLib
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return timers.GetEnumerator();
+            return timers.Values.GetEnumerator();
         }
         private void StopAll()
         {
@@ -133,6 +145,7 @@ namespace SingleTimerLib
             {
                 t.Dispose();
             }
+            Clear();
         }
         public void Dispose()
         {
