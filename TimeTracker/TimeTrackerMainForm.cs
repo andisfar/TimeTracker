@@ -41,7 +41,7 @@ namespace TimeTracker
                 ResetTimer = Timer_TimerReset
             });
 
-        var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default[@"DataFile"].ToString();
+            var DataFile = Application.LocalUserAppDataPath + Properties.Settings.Default[@"DataFile"].ToString();
             var dataFileInfo = new FileInfo(DataFile);
             //
             Commands = new Dictionary<string, string>

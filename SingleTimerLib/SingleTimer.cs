@@ -31,6 +31,12 @@ namespace SingleTimerLib
         public delegate void SingleTimerChangedHandler(object sender, SingleTimerLibEventArgs e);
 
         public delegate void SingleTimerNameChanging(object sender, SingleTimerNameChangingEventArgs e, [CallerMemberName] string caller="");
+
+        public static void Log_Message(string debug_message)
+        {
+            Debug.Print(debug_message);
+        }
+
         public event SingleTimerNameChanging NameChanging;
 
         public delegate void SingleTimerElapsedTimeChanging(object sender, SingleTimerElapsedTimeChangingEventArgs e, [CallerMemberName] string caller = "");
@@ -118,6 +124,13 @@ namespace SingleTimerLib
             FinishInit(elapsedTimeOffset);
         }
 
+        public SingleTimer(int rowId, string canonicalname, string timerOffset)
+        {
+            this.RowIndex = rowId;
+            this.Name = canonicalname;
+            FinishInit(timerOffset);
+        }
+
         private void FinishInit(string elapsedTimeOffset)
         {
             OnPropertyChangedEventHandler(nameof(RowIndex));
@@ -181,7 +194,7 @@ namespace SingleTimerLib
             }
         }
 
-        internal static string BlankTimerValue { get => $"{"00"}:{"00"}:{"00"}"; }
+        public static string BlankTimerValue { get => $"{0:00}:{0:00}:{0:00}"; }
 
         public void StartOrStop()
         {

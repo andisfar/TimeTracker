@@ -141,6 +141,11 @@ namespace SingleTimerLib
             GC.SuppressFinalize(this);
         }
 
+        public bool Contains(SingleTimer item)
+        {
+            return this.Values.Contains(item);
+        }
+
         public void AddTimer(DataRow row)
         {
             var rowID = Convert.ToInt32(row[0].ToString());
