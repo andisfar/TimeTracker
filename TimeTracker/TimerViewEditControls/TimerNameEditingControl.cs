@@ -10,20 +10,21 @@ namespace TimeTracker.TimerViewEditControls
 {
     public class TimerNameEditingControl : TextBox, IDataGridViewEditingControl
     {
-
         DataGridView dataGridView;
         int rowIndex;
-        private bool NameValueChanged = false;
+        private bool valueChanged = false;
 
         public DataGridView EditingControlDataGridView { get => dataGridView; set => dataGridView = value; }
 
         public object EditingControlFormattedValue { get => this.Text; set => this.Text = (string)value; }
         public int EditingControlRowIndex { get => rowIndex; set => rowIndex = value; }
-        public bool EditingControlValueChanged { get => NameValueChanged; set { NameValueChanged = value; } }
+        public bool EditingControlValueChanged { get => valueChanged; set { valueChanged = value; } }
 
         public Cursor EditingPanelCursor => base.Cursor;
 
         public bool RepositionEditingControlOnValueChange => true;
+
+        //public override string Text { get => base.Text; set => base.Text = value; }
 
         public TimerNameEditingControl() : base()
         {
@@ -32,7 +33,8 @@ namespace TimeTracker.TimerViewEditControls
 
         private void TimerNameEditingControl_TextChanged(object sender, EventArgs e)
         {
-            NameValueChanged = true;
+            valueChanged = true;
+            this.dataGridView.NotifyCurrentCellDirty(true);
         }
 
         public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
@@ -69,6 +71,11 @@ namespace TimeTracker.TimerViewEditControls
         public void PrepareEditingControlForEdit(bool selectAll)
         {
             //;
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
         }
     }
 }

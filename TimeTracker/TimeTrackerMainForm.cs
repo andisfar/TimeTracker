@@ -69,69 +69,18 @@ private static void Timer_TimerReset(object sender, SingleTimerLibEventArgs e)
 {
     //Timer.AcceptChanges();
 }
-private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTimer, out SingleTimer t)
+private DialogResult EditTimer(SingleTimer t)
         {
-            var key = Convert.ToInt32(TimerDataGridView.Rows[e.RowIndex].Cells[0].EditedFormattedValue.ToString());
-            using (var editor = new SingleTimerEditorForm(e, key, needNewTimer, Editor_QueryTimerNeeded))
+            using (var editor = new SingleTimerEditorForm(t))
             {
-                editor.CheckNameExists += Editor_CheckNameExists;
-                editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
                 editor.RequestStartTimer += Editor_RequestStartTimer;
                 editor.RequestStopTimer += Editor_RequestStopTimer;
-                editor.Timer.NameChanging += Timer_NameChanging;
-                t = editor.Timer;
                 return editor.ShowDialog(this);
             }
         }
         private void Editor_CheckNameExists(object sender, SingleTimerEditorFormCheckNameEventArgs e)
         {
             e.Exists = dal.NameExists(e.Name, Properties.Resources.name_exists_command);
-        }
-        private void TimersDataGridView_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            UserAddedRow = TimerDataGridView.Rows[e.RowIndex].Cells[1].EditedFormattedValue.ToString() == string.Empty;
-            if (EditTimer(e, UserAddedRow, out SingleTimer t) == DialogResult.OK)
-            {
-                if (t.CanonicalName == "<Timer Name>")
-                    TimerDataGridView.Rows.RemoveAt(e.RowIndex);
-                else
-                {
-                    //_timers[t.RowIndex].DebugPrint(InfoTypes.TimerEvents);
-                    TimerDataGridView.Rows[e.RowIndex].SetCanoniicalName(t.CanonicalName);
-                    TimerDataGridView.Rows[e.RowIndex].SetTimerElapsedTime(t.RunningElapsedTime);
-                    TimerDataGridView.UpdateCellValue(1, e.RowIndex);
-                    TimerDataGridView.UpdateCellValue(0, e.RowIndex);
-                    try
-                    {
-                        TimerDataGridView_CellEndEdit(this, new DataGridViewCellEventArgs(e.ColumnIndex, e.RowIndex));
-                    }
-                    catch (System.Data.ConstraintException ex)
-                    {
-                        MessageBox.Show(this, ex.Message, nameof(System.Data.ConstraintException),MessageBoxButtons.OK,MessageBoxIcon.Error);
-                        e.Cancel = true;
-                        try
-                        {
-                            TimerDataGridView.Rows.RemoveAt(e.RowIndex);
-                        }
-                        catch (System.InvalidOperationException)
-                        {
-                            Log_Message("");
-                        }
-                        catch(Exception)
-                        {
-                            throw;
-                        }
-                    }
-                    TimerDataGridView.EndEdit();
-                }
-            }
-            e.Cancel = true;
-            SaveToDatabase();
-            if (t.CanonicalName == "<Timer Name>")
-            {
-                UserAddedRow = false;
-                return;
-            }
         }
         private void Editor_RequestStopTimer(object sender, SingleTimerEditorFormStopTimerEventArgs e)
         {
@@ -156,11 +105,11 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             #endregion
             #region TimerDataGridView Events
             TimerDataGridView.DataError += TimerDataGridView_DataError;
-            //TimerDataGridView.CellBeginEdit += TimersDataGridView_CellBeginEdit;
             TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
             TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
             TimerDataGridView.UserDeletingRow += TimerDataGridView_UserDeletingRow;
             TimerDataGridView.UserDeletedRow += TimerDataGridView_UserDeletedRow;
+            TimerDataGridView.CellMouseDown += TimerDataGridView_CellMouseDown;
             #endregion
             #region dal CommandBuilder DataAdapter Events
             dal.TimerCommandBuilder.DataAdapter.FillError += DataAdapter_FillError;
@@ -174,7 +123,6 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             dal.TimerCommandBuilder.DataAdapter.SelectCommand.Connection.StateChange += Connection_StateChanged;
             #endregion
             #region bindingNavigator Events
-            bindingNavigatorAddNewItem.Click += BindingNavigatorAddNewItem_Click;
             bindingNavigatorDeleteItem.Click += BindingNavigatorDeleteItem_Click;
             bindingNavigatorSaveToDatabase.Click += BindingNavigatorSaveToDatabase_Click;
             #endregion
@@ -182,6 +130,26 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             FormClosing += TimeTrackerMainForm_FormClosing;
             #endregion
         }
+
+        private void TimerDataGridView_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Right)
+            {
+                var key = GetTimerKey(e.RowIndex);
+                ShowTimerUI(_timers[key]);
+            }
+        }
+
+        private void ShowTimerUI(SingleTimer singleTimer)
+        {
+            EditTimer(singleTimer);
+        }
+
+        private int GetTimerKey(int rowIndex)
+        {
+            return Convert.ToInt32(TimerDataGridView.Rows[rowIndex].Cells[0].EditedFormattedValue);
+        }
+
         private void Timer_NameChanging(object sender, SingleTimerNameChangingEventArgs e, [System.Runtime.CompilerServices.CallerMemberName] string caller = "")
         {
             EnableSave();
@@ -312,10 +280,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
         {
             UserAddedRow = true;
         }
-        private void BindingNavigatorAddNewItem_Click(object sender, EventArgs e)
-        {
-            TimersDataGridView_CellBeginEdit(this, new DataGridViewCellCancelEventArgs(TimerDataGridView.CurrentCell.ColumnIndex,TimerDataGridView.CurrentRow.Index));
-        }
+
         private void Connection_StateChanged(object sender, StateChangeEventArgs e)
         {
             switch(e.CurrentState)

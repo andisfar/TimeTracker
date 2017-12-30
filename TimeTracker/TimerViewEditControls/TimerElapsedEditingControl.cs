@@ -10,20 +10,19 @@ namespace TimeTracker.TimerViewEditControls
 {
     public class TimerElapsedEditingControl : TextBox, IDataGridViewEditingControl
     {
-
         DataGridView dataGridView;
         int rowIndex;
-        private bool ElapsedValueChanged = false;
+        private bool valueChanged = false;
 
         public DataGridView EditingControlDataGridView { get => dataGridView; set => dataGridView = value; }
 
         public object EditingControlFormattedValue { get => this.Text; set => this.Text = (string)value; }
         public int EditingControlRowIndex { get => rowIndex; set => rowIndex = value; }
-        public bool EditingControlValueChanged { get => ElapsedValueChanged; set { ElapsedValueChanged = value; } }
+        public bool EditingControlValueChanged { get => valueChanged; set { valueChanged = value; } }
 
         public Cursor EditingPanelCursor => base.Cursor;
 
-        public bool RepositionEditingControlOnValueChange => true;
+        public bool RepositionEditingControlOnValueChange => false;
 
         public TimerElapsedEditingControl() : base()
         {
@@ -32,7 +31,8 @@ namespace TimeTracker.TimerViewEditControls
 
         private void TimerElapsedEditingControl_TextChanged(object sender, EventArgs e)
         {
-            ElapsedValueChanged = true;
+            valueChanged = true;
+            this.dataGridView.NotifyCurrentCellDirty(true);
         }
 
         public void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
