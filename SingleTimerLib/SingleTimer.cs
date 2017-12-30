@@ -424,8 +424,7 @@ namespace SingleTimerLib
         public string ElapsedTime { get => _elapsedTime; }
 
         public SingleTimerElapsedTimeChangingEventArgs(string elapsedTime, SingleTimer t, [CallerMemberName] string caller = "")
-        {
-            Debug.Print($"{caller} instantiates a new SingleTimerElapsedTimeChangingEventArgs!");
+        {            
             _t = t;
             _elapsedTime = elapsedTime;
         }
@@ -442,7 +441,6 @@ namespace SingleTimerLib
 
         public SingleTimerNameChangingEventArgs(string newName, SingleTimer t, [CallerMemberName] string caller = "")
         {
-            Debug.Print($"{caller} instantiates a new SingleTimerNameChangingEventArgs!");
             _oldName = t.CanonicalName;
             _newName = newName;
             Timer = t;

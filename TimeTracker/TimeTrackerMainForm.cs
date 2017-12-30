@@ -11,6 +11,8 @@ namespace TimeTracker
 {
     public partial class TimeTrackerMainForm : Form
     {
+        bool IsLoading;
+
         private static string ConnectionString
         {
             get => Get_Connection_String();
@@ -34,6 +36,7 @@ namespace TimeTracker
         public TimeTrackerMainForm()
         {
             InitializeComponent();
+            IsLoading = true;
             _timers = new SingleTimersCollection(new SingleTimerEventHandlers
             {
                 ElapsedTimeChanging = TimeTrackerMainForm_ElapsedTimeChanging,
@@ -63,6 +66,7 @@ namespace TimeTracker
             ConnectionStatusButton.Image = ConnectionStateImageList.Images["Closed"];
             DBAccess.FillTimersCollection(ref _timers, Timer);
             ConnectEventHandlers();
+            IsLoading = false;
         }
 
 private static void Timer_TimerReset(object sender, SingleTimerLibEventArgs e)
@@ -71,7 +75,7 @@ private static void Timer_TimerReset(object sender, SingleTimerLibEventArgs e)
 }
 private DialogResult EditTimer(SingleTimer t)
         {
-            using (var editor = new SingleTimerEditorForm(t))
+            using (var editor = new SingleTimerUIForm(t))
             {
                 editor.RequestStartTimer += Editor_RequestStartTimer;
                 editor.RequestStopTimer += Editor_RequestStopTimer;
@@ -196,10 +200,11 @@ private DialogResult EditTimer(SingleTimer t)
             {
                 if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
                 {
-                    r.Cells[2].Value = e.Timer.RunningElapsedTime;
+                    r.Cells[2].Value = e.Timer.RunningElapsedTime;                    
                 }
             }
-            EnableSave();
+            TimerDataGridView.EndEdit();
+            dal.SaveToDataBase(Timer);
             Application.DoEvents();
         }
         private static void Log_Message(DataRow row)
@@ -233,15 +238,17 @@ private DialogResult EditTimer(SingleTimer t)
         }
         private void EnableSave()
         {
+            if (IsLoading) return;
             if(this.InvokeRequired)
             {
                 this.Invoke(new Action(EnableSave));
                 return;
             }
-            bindingNavigatorSaveToDatabase.Enabled = true;
+            bindingNavigatorSaveToDatabase.Enabled = DBAccess.DatabaseSaveRequired(Timer);
         }
         private void Timer_RowChanged(object sender, DataRowChangeEventArgs e)
         {
+            Log_Message($"Row state of changed rows [{e.Row.RowState}]!");
             EnableSave();
         }
         private void Timer_RowDeleted(object sender, DataRowChangeEventArgs e)

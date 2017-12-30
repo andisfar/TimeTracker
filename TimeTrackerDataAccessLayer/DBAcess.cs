@@ -130,13 +130,20 @@ namespace TimeTrackerDataAccessLayer
 
         public void SaveToDataBase(DataTable timer)
         {
+            if (timer == null) return;
+            if (!DatabaseSaveRequired(timer)) return;
+            var affecting = timer.GetChanges().Rows.Count;
+            var rowsPlural = affecting > 1 ? "Rows" : "Row";
+            Log_Message($"Saving {affecting} affected {rowsPlural} to the database!");
             var update = TimerCommandBuilder.DataAdapter.UpdateCommand;
             var insert = TimerCommandBuilder.DataAdapter.InsertCommand;
             var delete = TimerCommandBuilder.DataAdapter.DeleteCommand;
 
             var affected = 0;
-            foreach (DataRow row in timer.Rows)
+            var dt = timer.GetChanges();
+            foreach (DataRow row in dt.Rows)
             {
+                Log_Message($"row has state of '{row.RowState}'");
                 if(row.RowState == DataRowState.Added)
                 {
                     var name = new SQLiteParameter("@Name", row[1]);
@@ -144,7 +151,17 @@ namespace TimeTrackerDataAccessLayer
                     var paramList = new List<SQLiteParameter> { name, elapsed };
                     insert.Parameters.AddRange(paramList.ToArray());
                     insert.Open();
-                    affected += insert.ExecuteNonQuery();
+                    try
+                    {
+                        affected += insert.ExecuteNonQuery();
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        if (!ex.Message.Contains("UNIQUE"))
+                            throw new InvalidOperationException(ex.Message, ex);
+                        else
+                            timer.AcceptChanges();
+                    }                   
                     insert.Close();
                 }
                 if (row.RowState == DataRowState.Modified)
@@ -170,9 +187,11 @@ namespace TimeTrackerDataAccessLayer
                     delete.Close();
                 }
             }
-            Log_Message($"{affected} rows affected!");
             timer.AcceptChanges();
             TimerCommandBuilder.DataAdapter.Update(timer);
+            dt = timer.GetChanges();
+            if(dt==null)
+                Log_Message($"{affected} affected rows saved to {DatabaseFile}!");           
         }
 
         private static void Log_Message(string message)
@@ -232,6 +251,28 @@ namespace TimeTrackerDataAccessLayer
                 }
             }
             // if all is well the database exists and is populated with default info or alredy existed
+        }
+
+        public static bool DatabaseSaveRequired(DataTable timer)
+        {
+            DataTable dt = null;
+            try
+            {
+                dt = timer.GetChanges();
+            }
+            catch(NullReferenceException)
+            {
+                return false;
+            }
+
+            try
+            {
+                return dt.Rows.Count > 0;
+            }
+            catch (NullReferenceException)
+            {
+                return false;
+            }         
         }
     }
     #region EventHandlerTypes

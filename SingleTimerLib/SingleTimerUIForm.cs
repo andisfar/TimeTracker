@@ -5,12 +5,12 @@ using System.Windows.Forms;
 
 namespace SingleTimerLib
 {
-    public partial class SingleTimerEditorForm : Form
+    public partial class SingleTimerUIForm : Form
     {
         int key = -1;
         private SingleTimerLib.SingleTimer _timer = null;
         public int RowIndex { get => key; set => key = value; }
-        public SingleTimerEditorForm(SingleTimer t)
+        public SingleTimerUIForm(SingleTimer t)
         {
             InitializeComponent();
             this.key = t.RowIndex;
@@ -19,8 +19,9 @@ namespace SingleTimerLib
             RunTimerCheckBox.ImageKey = _timer.IsRunning ? "stop" : "play";
             RunTimerCheckBox.Checked = _timer.IsRunning;
             ThreadSafeUpdateOfTimerMenuText(_timer.MenuText);
+            _timer.ElapsedTimeChanging += Timer_ElapsedTimeChanging;
         }
-
+        
         private void ThreadSafeUpdateOfTimerMenuText(string menuText)
         {
             if(InvokeRequired)
@@ -29,6 +30,10 @@ namespace SingleTimerLib
                 return;
             }
             MenuTextLabel.Text = menuText;
+            var time = menuText.Substring(menuText.IndexOf('[') + 1, 8);
+            hours_progress.Value = Convert.ToInt32(time.Split(':')[0]);
+            minutes_progress.Value = Convert.ToInt32(time.Split(':')[1]);
+            seconds_progress.Value = Convert.ToInt32(time.Split(':')[2]);
         }
 
         private static void Log_Message(string message)
@@ -47,7 +52,7 @@ namespace SingleTimerLib
         {
             Log_Message(sender.ToString());
             Log_Message(caller);
-            ThreadSafeUpdateOfTimerMenuText(e.ElapsedTime);
+            ThreadSafeUpdateOfTimerMenuText(e.Timer.MenuText);
         }
 
         private void ResetTimerbutton_Click(object sender, EventArgs e)
@@ -55,8 +60,7 @@ namespace SingleTimerLib
             Application.DoEvents();
             RunTimerCheckBox.Checked = false;            
             CheckRunStopTimer();
-            _timer.ResetTimer();
-            RunTimerCheckBox.Enabled = false;
+            _timer.ResetTimer();            
         }
 
         private void RunTimerCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -97,6 +101,7 @@ namespace SingleTimerLib
         {
             RunTimerCheckBox.ImageKey = RunTimerCheckBox.Checked ? "stop" : "play";
         }
+
     }
 
     public class SingleTimerEditorFormStopTimerEventArgs
