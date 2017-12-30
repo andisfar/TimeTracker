@@ -81,6 +81,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TimerViewEditControls\TimerElapsedEditingControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TimerViewEditControls\TimerElapsedEditViewCell.cs" />
+    <Compile Include="TimerViewEditControls\TimerElapsedEditViewColumn.cs" />
+    <Compile Include="TimerViewEditControls\TimerNameEditViewColumn.cs" />
+    <Compile Include="TimerViewEditControls\TimerNameEditViewCell.cs" />
+    <Compile Include="TimerViewEditControls\TimerNameEditingControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TimeTrackerMainForm.cs">
       <SubType>Form</SubType>
     </Compile>

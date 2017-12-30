@@ -229,12 +229,10 @@ namespace SingleTimerLib
         }
 
         private string _name;
-        private SingleTimer timer;
-
         public string Name
         {
             get { return IsRunning ? _name + "*" : _name; }
-            set { OnNameChanging(this, new SingleTimerNameChangingEventArgs(CanonicalName, value, this)); _name = value; OnPropertyChangedEventHandler(); }
+            set { OnNameChanging(this, new SingleTimerNameChangingEventArgs(value, this)); _name = value; OnPropertyChangedEventHandler(); }
         }
 
         public string RunningElapsedTime => $"{Running_hours:00}:{Running_minutes:00}:{Running_seconds:00}";
@@ -442,10 +440,10 @@ namespace SingleTimerLib
         public string NewName { get => _newName; }
         public SingleTimer Timer { get; private set; }
 
-        public SingleTimerNameChangingEventArgs(string oldName, string newName, SingleTimer t, [CallerMemberName] string caller = "")
+        public SingleTimerNameChangingEventArgs(string newName, SingleTimer t, [CallerMemberName] string caller = "")
         {
             Debug.Print($"{caller} instantiates a new SingleTimerNameChangingEventArgs!");
-            _oldName = oldName;
+            _oldName = t.CanonicalName;
             _newName = newName;
             Timer = t;
         }

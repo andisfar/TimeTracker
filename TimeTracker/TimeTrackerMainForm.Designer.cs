@@ -31,9 +31,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimeTrackerMainForm));
             this.TimerDataGridView = new System.Windows.Forms.DataGridView();
-            this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.nameDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.elapsedDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TimerBS = new System.Windows.Forms.BindingSource(this.components);
             this.TimerDataSet = new System.Data.DataSet();
             this.Timer = new System.Data.DataTable();
@@ -58,6 +55,9 @@
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusTextLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ConnectionStateImageList = new System.Windows.Forms.ImageList(this.components);
+            this.idDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.nameDataGridViewTextBoxColumn = new TimeTracker.TimerViewEditControls.TimerNameEditViewColumn();
+            this.elapsedDataGridViewTextBoxColumn = new TimeTracker.TimerViewEditControls.TimerElapsedEditViewColumn();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerBS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.TimerDataSet)).BeginInit();
@@ -81,28 +81,6 @@
             this.TimerDataGridView.Name = "TimerDataGridView";
             this.TimerDataGridView.Size = new System.Drawing.Size(544, 260);
             this.TimerDataGridView.TabIndex = 0;
-            // 
-            // idDataGridViewTextBoxColumn
-            // 
-            this.idDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.idDataGridViewTextBoxColumn.DataPropertyName = "id";
-            this.idDataGridViewTextBoxColumn.HeaderText = "id";
-            this.idDataGridViewTextBoxColumn.Name = "idDataGridViewTextBoxColumn";
-            this.idDataGridViewTextBoxColumn.Visible = false;
-            // 
-            // nameDataGridViewTextBoxColumn
-            // 
-            this.nameDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
-            this.nameDataGridViewTextBoxColumn.HeaderText = "Name";
-            this.nameDataGridViewTextBoxColumn.Name = "nameDataGridViewTextBoxColumn";
-            // 
-            // elapsedDataGridViewTextBoxColumn
-            // 
-            this.elapsedDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.elapsedDataGridViewTextBoxColumn.DataPropertyName = "Elapsed";
-            this.elapsedDataGridViewTextBoxColumn.HeaderText = "Elapsed";
-            this.elapsedDataGridViewTextBoxColumn.Name = "elapsedDataGridViewTextBoxColumn";
             // 
             // TimerBS
             // 
@@ -320,6 +298,33 @@
             this.ConnectionStateImageList.Images.SetKeyName(1, "Closed");
             this.ConnectionStateImageList.Images.SetKeyName(2, "Open");
             // 
+            // idDataGridViewTextBoxColumn
+            // 
+            this.idDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.idDataGridViewTextBoxColumn.DataPropertyName = "id";
+            this.idDataGridViewTextBoxColumn.HeaderText = "id";
+            this.idDataGridViewTextBoxColumn.Name = "idDataGridViewTextBoxColumn";
+            this.idDataGridViewTextBoxColumn.Visible = false;
+            this.idDataGridViewTextBoxColumn.Width = 40;
+            // 
+            // nameDataGridViewTextBoxColumn
+            // 
+            this.nameDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.nameDataGridViewTextBoxColumn.DataPropertyName = "Name";
+            this.nameDataGridViewTextBoxColumn.HeaderText = "Name";
+            this.nameDataGridViewTextBoxColumn.Name = "nameDataGridViewTextBoxColumn";
+            this.nameDataGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.nameDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // elapsedDataGridViewTextBoxColumn
+            // 
+            this.elapsedDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.elapsedDataGridViewTextBoxColumn.DataPropertyName = "Elapsed";
+            this.elapsedDataGridViewTextBoxColumn.HeaderText = "Elapsed";
+            this.elapsedDataGridViewTextBoxColumn.Name = "elapsedDataGridViewTextBoxColumn";
+            this.elapsedDataGridViewTextBoxColumn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.elapsedDataGridViewTextBoxColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
             // TimeTrackerMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -361,9 +366,6 @@
         private System.Windows.Forms.ToolStripButton bindingNavigatorMoveLastItem;
         private System.Windows.Forms.ToolStripSeparator bindingNavigatorSeparator2;
         private System.Windows.Forms.ToolStripButton bindingNavigatorSaveToDatabase;
-        private System.Windows.Forms.DataGridViewTextBoxColumn idDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn nameDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn elapsedDataGridViewTextBoxColumn;
         private System.Data.DataSet TimerDataSet;
         private System.Data.DataTable Timer;
         private System.Data.DataColumn Id;
@@ -374,6 +376,9 @@
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
         private System.Windows.Forms.ToolStripStatusLabel StatusTextLabel;
         private System.Windows.Forms.ImageList ConnectionStateImageList;
+        private System.Windows.Forms.DataGridViewTextBoxColumn idDataGridViewTextBoxColumn;
+        private TimerViewEditControls.TimerNameEditViewColumn nameDataGridViewTextBoxColumn;
+        private TimerViewEditControls.TimerElapsedEditViewColumn elapsedDataGridViewTextBoxColumn;
     }
 }
 

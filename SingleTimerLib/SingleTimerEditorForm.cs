@@ -14,6 +14,21 @@ namespace SingleTimerLib
 
     public partial class SingleTimerEditorForm : Form
     {
+
+        public delegate void TimerNameValueChangedHandler(object sender, SingleTimerNameChangingEventArgs e);
+        public event TimerNameValueChangedHandler TimerNameValueChanged;
+        private void OnTimerNameValueChanged(object sender, SingleTimerNameChangingEventArgs e)
+        {
+            TimerNameValueChanged?.Invoke(sender, e);
+        }
+
+        public delegate void TimerElapsedValueChangedHandler(object sender, SingleTimerElapsedTimeChangingEventArgs e);
+        public event TimerElapsedValueChangedHandler TimerElapsedValueChanged;
+        private void OnTimerElapsedValueChanged(object sender, SingleTimerElapsedTimeChangingEventArgs e)
+        {
+            TimerElapsedValueChanged?.Invoke(sender, e);
+        }
+
         private List<EditActions> editActions = new List<EditActions>();
 
         int _rowIndex = -1;
@@ -21,17 +36,26 @@ namespace SingleTimerLib
         private SingleTimerLib.SingleTimer _timer = null;
 
         public SingleTimerLib.SingleTimer Timer { get => _timer; }
-        public int RowIndex { get => _rowIndex; }
+        public int RowIndex { get => _rowIndex; set => _rowIndex = value; }
 
         private bool _newTimerNeeded;
 
-        private int StartIn { get; set; }
+        public string NameEditedValue { get => TimerNameTextBox.Text; set => TimerNameTextBox.Text = value; }
+        public string ElapsedEditedValue { get => TimerElapsedTimeTextBox.Text; set => TimerElapsedTimeTextBox.Text = value; }
 
-        public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, DataGridViewRow r, bool isNewRow = false, SingleTimerEditorFormTimerNeeded QueryTimerNeededHandler = null)
+        public int StartIn { get; set; }
+
+        public SingleTimerEditorForm()
+        {
+            InitializeComponent();
+            TopLevel = false;
+        }
+
+        public SingleTimerEditorForm(DataGridViewCellCancelEventArgs e, int key, bool isNewRow = false, SingleTimerEditorFormTimerNeeded QueryTimerNeededHandler = null)
         {
             InitializeComponent();            
             _timer = null;
-            _rowIndex = Convert.ToInt32(r.Cells[0].EditedFormattedValue.ToString());
+            _rowIndex = key;
             _newTimerNeeded = isNewRow;
             StartIn = e.ColumnIndex;
             if(QueryTimerNeededHandler != null)
@@ -78,9 +102,9 @@ namespace SingleTimerLib
             TimerNameTextBox.Text = canonicalName;
         }
 
-        private void DebugPrint(string message)
+        private static void DebugPrint(string message)
         {
-            string messageWithTimeStamp = string.Format("{0}:\t{1}", DateTime.Now.ToString("HH:mm:ss:fff"), message);
+            var messageWithTimeStamp = string.Format("{0}:\t{1}", DateTime.Now.ToString("HH:mm:ss:fff"), message);
             Debug.Print(messageWithTimeStamp);
         }
 
@@ -89,7 +113,7 @@ namespace SingleTimerLib
         {            
             if(StartIn == 1)
             { ActiveControl = TimerNameTextBox; } else { ActiveControl = TimerElapsedTimeTextBox; }
-            Timer.ElapsedTimeChanging += Timer_ElapsedTimeChanging;
+            if(Timer != null)Timer.ElapsedTimeChanging += Timer_ElapsedTimeChanging;
             Application.DoEvents();
         }
 
@@ -114,7 +138,7 @@ namespace SingleTimerLib
             }
 
             if (TimerNameTextBox.Text == string.Empty)
-                Timer.Name = "Cancel";
+                Timer.Name = "<Timer Name>";
 
             this.Close();
         }
@@ -122,11 +146,14 @@ namespace SingleTimerLib
         private void RejectButton_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
-            if (TimerNameTextBox.Text == string.Empty)
-                Timer.Name = "Cancel";
+            if (Timer != null)
+            {
+                if (TimerNameTextBox.Text == string.Empty)
+                    Timer.Name = "<Timer Name>";
 
-            DebugPrint(string.Format("Elasped Timer {0}", Timer.RunningElapsedTime));
-            DebugPrint(string.Format("Elasped Timer {0}", TimerElapsedTimeTextBox.Text));
+                DebugPrint(string.Format("Elasped Timer {0}", Timer.RunningElapsedTime));
+                DebugPrint(string.Format("Elasped Timer {0}", TimerElapsedTimeTextBox.Text));
+            }
             this.Close();
         }
 
@@ -192,14 +219,17 @@ namespace SingleTimerLib
             if(TimerNameTextBox.Text != Timer.CanonicalName)
             {
                 if(!editActions.Contains(EditActions.ChangeName))editActions.Add(EditActions.ChangeName);
+                OnTimerNameValueChanged(this, new SingleTimerNameChangingEventArgs(TimerNameTextBox.Text,Timer));
             }
         }
 
         private void TimerElapsedTimeTextBox_Validated(object sender, EventArgs e)
         {
-            if(TimerElapsedTimeTextBox.Text != Timer.RunningElapsedTime)
+            if (Timer == null) return;
+            if (TimerElapsedTimeTextBox.Text != Timer.RunningElapsedTime)
             {
                 if (!editActions.Contains(EditActions.ChangedElapsedTimer)) editActions.Add(EditActions.ChangedElapsedTimer);
+                OnTimerElapsedValueChanged(this, new SingleTimerElapsedTimeChangingEventArgs(TimerElapsedTimeTextBox.Text,Timer));
             }
         }
 

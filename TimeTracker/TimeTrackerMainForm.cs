@@ -71,7 +71,8 @@ private static void Timer_TimerReset(object sender, SingleTimerLibEventArgs e)
 }
 private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTimer, out SingleTimer t)
         {
-            using (var editor = new SingleTimerEditorForm(e,TimerDataGridView.Rows[e.RowIndex], needNewTimer, Editor_QueryTimerNeeded))
+            var key = Convert.ToInt32(TimerDataGridView.Rows[e.RowIndex].Cells[0].EditedFormattedValue.ToString());
+            using (var editor = new SingleTimerEditorForm(e, key, needNewTimer, Editor_QueryTimerNeeded))
             {
                 editor.CheckNameExists += Editor_CheckNameExists;
                 editor.QueryTimerNeeded += Editor_QueryTimerNeeded;
@@ -91,7 +92,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             UserAddedRow = TimerDataGridView.Rows[e.RowIndex].Cells[1].EditedFormattedValue.ToString() == string.Empty;
             if (EditTimer(e, UserAddedRow, out SingleTimer t) == DialogResult.OK)
             {
-                if (t.CanonicalName == "Cancel")
+                if (t.CanonicalName == "<Timer Name>")
                     TimerDataGridView.Rows.RemoveAt(e.RowIndex);
                 else
                 {
@@ -126,7 +127,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             }
             e.Cancel = true;
             SaveToDatabase();
-            if (t.CanonicalName == "Cancel")
+            if (t.CanonicalName == "<Timer Name>")
             {
                 UserAddedRow = false;
                 return;
@@ -155,7 +156,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             #endregion
             #region TimerDataGridView Events
             TimerDataGridView.DataError += TimerDataGridView_DataError;
-            TimerDataGridView.CellBeginEdit += TimersDataGridView_CellBeginEdit;
+            //TimerDataGridView.CellBeginEdit += TimersDataGridView_CellBeginEdit;
             TimerDataGridView.CellEndEdit += TimerDataGridView_CellEndEdit;
             TimerDataGridView.UserAddedRow += TimerDataGridView_UserAddedRow;
             TimerDataGridView.UserDeletingRow += TimerDataGridView_UserDeletingRow;
