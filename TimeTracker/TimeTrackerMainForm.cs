@@ -228,7 +228,7 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
             {
                 if (r.Cells[0].EditedFormattedValue.ToString() == e.Timer.RowIndex.ToString())
                 {
-                    r.Cells[2].Value = e.Timer.RunningElapsedTime;                    
+                    r.Cells[2].Value = e.Timer.RunningElapsedTime;
                 }
             }
             EnableSave();
@@ -349,18 +349,18 @@ private DialogResult EditTimer(DataGridViewCellCancelEventArgs e, bool needNewTi
                     TimerDataGridView.Rows[e.RowIndex].Cells[2].Value = "00:00:00";
                 }
             }
-            if(UserAddedRow)
-            {
-                var row = Timer.NewRow();
-                using (DataGridViewRow dvrow = TimerDataGridView.Rows[e.RowIndex])
-                {
-                    row[1] = dvrow.Cells[1].EditedFormattedValue;
-                    row[2] = dvrow.Cells[2].EditedFormattedValue;
-                }
-                Timer.Rows.Add(row);
-                _timers.AddTimer(row);
-                UserAddedRow = false;
-            }
+            //if(UserAddedRow)
+            //{
+            //    var row = Timer.NewRow();
+            //    using (DataGridViewRow dvrow = TimerDataGridView.Rows[e.RowIndex])
+            //    {
+            //        row[1] = dvrow.Cells[1].EditedFormattedValue;
+            //        row[2] = dvrow.Cells[2].EditedFormattedValue;
+            //    }
+            //    Timer.Rows.Add(row);
+            //    _timers.AddTimer(row);
+            //    UserAddedRow = false;
+            //}
         }
         private static void Log_Message(DataTable dataTable)
         {

@@ -34,7 +34,8 @@ namespace SingleTimerLib
                 catch (KeyNotFoundException ex)
                 {
                     Log_Message(ex.Message);
-                    throw new KeyNotFoundException($"'error on get' - No timer at this index {key}!", ex); ;
+                    // throw new KeyNotFoundException($"'error on get' - No timer at this index {key}!", ex); ;
+                    return null;
                 }
             }
 
