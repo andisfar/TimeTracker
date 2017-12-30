@@ -41,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -109,6 +110,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="TimerViewEditControls\TimerElapsedEditingControl.resx">
+      <DependentUpon>TimerElapsedEditingControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TimeTrackerMainForm.resx">
       <DependentUpon>TimeTrackerMainForm.cs</DependentUpon>
     </EmbeddedResource>

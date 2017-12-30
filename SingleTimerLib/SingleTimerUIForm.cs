@@ -31,9 +31,16 @@ namespace SingleTimerLib
             }
             MenuTextLabel.Text = menuText;
             var time = menuText.Substring(menuText.IndexOf('[') + 1, 8);
-            hours_progress.Value = Convert.ToInt32(time.Split(':')[0]);
-            minutes_progress.Value = Convert.ToInt32(time.Split(':')[1]);
-            seconds_progress.Value = Convert.ToInt32(time.Split(':')[2]);
+            try
+            {
+                hours_progress.Value = Convert.ToInt32(time.Split(':')[0]);
+                minutes_progress.Value = Convert.ToInt32(time.Split(':')[1]);
+                seconds_progress.Value = Convert.ToInt32(time.Split(':')[2]);
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
         }
 
         private static void Log_Message(string message)

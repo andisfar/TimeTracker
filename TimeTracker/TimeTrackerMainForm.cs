@@ -248,7 +248,7 @@ private DialogResult EditTimer(SingleTimer t)
         }
         private void Timer_RowChanged(object sender, DataRowChangeEventArgs e)
         {
-            Log_Message($"Row state of changed rows [{e.Row.RowState}]!");
+            Log_Message($"Row state of changed rows [{e.Row.RowState}]!");            
             EnableSave();
         }
         private void Timer_RowDeleted(object sender, DataRowChangeEventArgs e)
@@ -321,18 +321,11 @@ private DialogResult EditTimer(SingleTimer t)
                     TimerDataGridView.Rows[e.RowIndex].Cells[2].Value = "00:00:00";
                 }
             }
-            //if(UserAddedRow)
-            //{
-            //    var row = Timer.NewRow();
-            //    using (DataGridViewRow dvrow = TimerDataGridView.Rows[e.RowIndex])
-            //    {
-            //        row[1] = dvrow.Cells[1].EditedFormattedValue;
-            //        row[2] = dvrow.Cells[2].EditedFormattedValue;
-            //    }
-            //    Timer.Rows.Add(row);
-            //    _timers.AddTimer(row);
-            //    UserAddedRow = false;
-            //}
+            if(e.ColumnIndex==2)
+            {
+                var key = GetTimerKey(e.RowIndex);
+                _timers[key].SetElapsedTime(TimerDataGridView.Rows[e.RowIndex].Cells[2].EditedFormattedValue.ToString());
+            }
         }
         private static void Log_Message(DataTable dataTable)
         {

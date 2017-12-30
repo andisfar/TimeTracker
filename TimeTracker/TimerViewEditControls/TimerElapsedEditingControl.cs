@@ -8,7 +8,7 @@ using SingleTimerLib;
 
 namespace TimeTracker.TimerViewEditControls
 {
-    public class TimerElapsedEditingControl : TextBox, IDataGridViewEditingControl
+    public class TimerElapsedEditingControl : MaskedTextBox, IDataGridViewEditingControl
     {
         DataGridView dataGridView;
         int rowIndex;
@@ -26,7 +26,15 @@ namespace TimeTracker.TimerViewEditControls
 
         public TimerElapsedEditingControl() : base()
         {
+            this.Mask = "00:00:00";
+            this.MaskInputRejected += TimerElapsedEditingControl_MaskInputRejected;
             this.TextChanged += TimerElapsedEditingControl_TextChanged;
+        }
+
+        private void TimerElapsedEditingControl_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+        {
+            MessageBox.Show(this, e.RejectionHint.ToString(), "Invalid input!");
+            this.Focus();
         }
 
         private void TimerElapsedEditingControl_TextChanged(object sender, EventArgs e)
@@ -69,6 +77,13 @@ namespace TimeTracker.TimerViewEditControls
         public void PrepareEditingControlForEdit(bool selectAll)
         {
             //;
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            this.ResumeLayout(false);
+
         }
     }
 }

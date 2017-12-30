@@ -105,7 +105,7 @@
             this.MenuTextLabel.Name = "MenuTextLabel";
             this.MenuTextLabel.Size = new System.Drawing.Size(281, 45);
             this.MenuTextLabel.TabIndex = 6;
-            this.MenuTextLabel.Text = "[Menu Tex]";
+            this.MenuTextLabel.Text = "[Menu Text]";
             this.MenuTextLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // closeButton
@@ -168,7 +168,7 @@
             // 
             // hours_progress
             // 
-            this.hours_progress.Maximum = 59;
+            this.hours_progress.Maximum = 23;
             this.hours_progress.Name = "hours_progress";
             this.hours_progress.Size = new System.Drawing.Size(90, 16);
             this.hours_progress.Step = 1;

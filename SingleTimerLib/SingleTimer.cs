@@ -166,7 +166,7 @@ namespace SingleTimerLib
             runningTime += stopWatch.Elapsed;
             Running_seconds = runningTime.Seconds;
             Running_minutes = runningTime.Minutes;
-            Running_hours = runningTime.Hours;
+            Running_hours = (runningTime.Hours)>23?0:runningTime.Hours;
         }
 
         private string ElapsedTimeOffset
@@ -216,6 +216,10 @@ namespace SingleTimerLib
             {
                 return;
             }
+            catch(NullReferenceException)
+            {
+                return;
+            }
             catch(Exception)
             {
                 throw;
@@ -249,19 +253,40 @@ namespace SingleTimerLib
         public void SetElapsedTime(string runningElapsedTime)
         {
            var newTime = new TimeSpan(ParseHours(runningElapsedTime)[0], ParseHours(runningElapsedTime)[1], ParseHours(runningElapsedTime)[2]);
-            Running_hours = newTime.Hours;
+            Running_hours = Convert.ToInt32(newTime.Hours)>23?0 : Convert.ToInt32(newTime.TotalHours);
             Running_minutes = newTime.Minutes;
             Running_seconds = newTime.Seconds;
-            OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
+            //OnElapsedTimeChanging(this, new SingleTimerElapsedTimeChangingEventArgs(RunningElapsedTime, this));
         }
 
         private static int[] ParseHours(string runningElapsedTime)
         {
             var retInts = new List<int>{0,0,0};
             var intStr = runningElapsedTime.Split(':');
-            retInts[0] = Int32.Parse(intStr[0]);
-            retInts[1] = Int32.Parse(intStr[1]);
-            retInts[2] = Int32.Parse(intStr[2]);
+            try
+            {
+                retInts[0] = Int32.Parse(intStr[0]) > 23 ? 0 : Int32.Parse(intStr[0]);
+            }
+            catch (Exception)
+            {
+                retInts[0] = 0;
+            }
+            try
+            {
+                retInts[1] = Int32.Parse(intStr[1]);
+            }
+            catch (Exception)
+            {
+                retInts[1] = 0;
+            }
+            try
+            {
+                retInts[2] = Int32.Parse(intStr[2]);
+            }
+            catch (Exception)
+            {
+                retInts[2] = 0;
+            }
             return retInts.ToArray();
         }
 
